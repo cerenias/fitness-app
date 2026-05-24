@@ -19,6 +19,7 @@ const state = {
   profile: null,
   player: null,
   sessionData: null,
+  previousHash: '#home',
   activeWorkoutTab: 'plan',
   activeProgressTab: 'weight',
   libraryFilter: 'all',
@@ -956,6 +957,7 @@ async function handleClick(e) {
     case 'start-session': {
       const session = getTodaySession(state.profile.plan || {});
       if (!session) break;
+      state.previousHash = window.location.hash || '#home';
       state.sessionData = resolveSession(session);
       window.location.hash = '#session';
       break;
@@ -964,6 +966,7 @@ async function handleClick(e) {
       const day = parseInt(el.dataset.day);
       const session = state.profile.plan?.[day];
       if (!session) break;
+      state.previousHash = window.location.hash || '#home';
       state.sessionData = resolveSession(session);
       window.location.hash = '#session';
       break;
@@ -1025,14 +1028,14 @@ async function handleClick(e) {
         state.player?.destroy();
         state.player = null;
         state.sessionData = null;
-        window.location.hash = '#home';
+        window.location.hash = state.previousHash || '#home';
       }
       break;
     case 'finish-session':
       state.player?.destroy();
       state.player = null;
       state.sessionData = null;
-      window.location.hash = '#home';
+      window.location.hash = state.previousHash || '#home';
       break;
 
     // Profile
@@ -1121,7 +1124,10 @@ async function handleClick(e) {
     case 'reset-app':
       if (confirm('This will delete ALL your data. Are you sure?')) {
         await importAllData('{"profile":[],"workouts":[],"weight":[],"measurements":[],"steps":[]}');
+        localStorage.removeItem(CHAT_KEY);
         state.profile = null;
+        state.chatMessages = [];
+        state.chatHistory = [];
         renderOnboarding();
       }
       break;
