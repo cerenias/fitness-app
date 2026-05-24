@@ -64,7 +64,7 @@ async function init() {
   initNotifications();
   loadChatFromStorage();
 
-  document.getElementById('app').addEventListener('click', handleClick);
+  document.body.addEventListener('click', handleClick);
   window.addEventListener('hashchange', route);
 
   state.profile = await getProfile();
@@ -818,6 +818,33 @@ function showModal(html) {
   overlay.id = 'modal-overlay';
   overlay.innerHTML = `<div class="modal-sheet">${html}</div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // Swipe down to close
+  const sheet = overlay.querySelector('.modal-sheet');
+  let startY = 0, isDragging = false;
+  sheet.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+  sheet.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  sheet.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    sheet.style.transition = '';
+    if (dy > 100) {
+      sheet.style.transform = `translateY(100%)`;
+      setTimeout(closeModal, 200);
+    } else {
+      sheet.style.transform = '';
+    }
+  });
+
   document.body.appendChild(overlay);
 }
 
