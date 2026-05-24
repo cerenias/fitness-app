@@ -65,6 +65,7 @@ async function route() {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', '#' + el.dataset.route === hash);
   });
+  if (hash !== '#coach') document.getElementById('main').classList.remove('coach-main');
   switch (hash) {
     case '#home':     await renderHome();     break;
     case '#workout':  await renderWorkout();  break;
@@ -1179,6 +1180,7 @@ function showToast(msg) {
 // ─── Coach / Maya View ────────────────────────────────────────────────────
 
 async function renderCoach() {
+  document.getElementById('main').classList.add('coach-main');
   setView(`
     <div class="view coach-view">
       <div class="maya-header">
