@@ -1,0 +1,309 @@
+export const MOVES = [
+  // ─── Legs ────────────────────────────────────────────────────────────────
+  {
+    id: 'squat',
+    name: 'Bodyweight Squat',
+    category: 'legs',
+    equipment: ['bodyweight'],
+    muscles: ['Quads', 'Glutes', 'Hamstrings'],
+    instructions: 'Stand feet shoulder-width apart, toes slightly out. Sit back and down keeping your chest tall and knees tracking over your toes. Drive through your heels to stand.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'goblet-squat',
+    name: 'Goblet Squat',
+    category: 'legs',
+    equipment: ['dumbbells'],
+    muscles: ['Quads', 'Glutes', 'Core'],
+    instructions: 'Hold a dumbbell vertically at chest height. Feet shoulder-width, toes out. Squat deep, elbows tracking inside your knees. Drive up through your heels.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'reverse-lunge',
+    name: 'Alternating Reverse Lunges',
+    category: 'legs',
+    equipment: ['bodyweight'],
+    muscles: ['Quads', 'Glutes', 'Hamstrings'],
+    instructions: 'Stand tall, hands on hips. Step one foot back and lower your back knee toward the floor without touching it. Push through the front foot to return. Alternate legs.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'each',
+  },
+  {
+    id: 'sumo-squat',
+    name: 'Sumo Squat',
+    category: 'legs',
+    equipment: ['bodyweight'],
+    muscles: ['Inner Thighs', 'Glutes', 'Quads'],
+    instructions: 'Take a wide stance, toes pointing out 45°. Lower straight down keeping your torso upright. Squeeze your glutes and inner thighs as you rise.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  {
+    id: 'rdl',
+    name: 'Dumbbell Romanian Deadlift',
+    category: 'legs',
+    equipment: ['dumbbells'],
+    muscles: ['Hamstrings', 'Glutes', 'Lower Back'],
+    instructions: 'Hold dumbbells in front of thighs. Hinge at the hips, pushing them back while lowering the weights along your legs. Keep a soft knee and flat back. Drive hips forward to return.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  // ─── Glutes ──────────────────────────────────────────────────────────────
+  {
+    id: 'glute-bridge',
+    name: 'Glute Bridge',
+    category: 'glutes',
+    equipment: ['bodyweight'],
+    muscles: ['Glutes', 'Hamstrings', 'Core'],
+    instructions: 'Lie on your back, knees bent, feet flat. Press through your heels and squeeze your glutes to raise your hips until your body forms a straight line. Hold briefly, then lower slowly.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  {
+    id: 'hip-thrust',
+    name: 'Hip Thrust',
+    category: 'glutes',
+    equipment: ['bodyweight'],
+    muscles: ['Glutes', 'Hamstrings'],
+    instructions: 'Sit with your upper back against a sofa or bench, knees bent, feet flat. Drive through your heels, squeeze your glutes hard at the top, forming a straight line from knees to shoulders. Lower with control.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'banded-lateral-walk',
+    name: 'Banded Lateral Walk',
+    category: 'glutes',
+    equipment: ['bands'],
+    muscles: ['Glutes', 'Hip Abductors'],
+    instructions: 'Place a resistance band just above your knees. Slightly bend your knees, hips back. Step sideways keeping tension in the band throughout. Take 10 steps each direction.',
+    defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
+  },
+  // ─── Chest / Push ────────────────────────────────────────────────────────
+  {
+    id: 'push-up',
+    name: 'Push Up',
+    category: 'chest',
+    equipment: ['bodyweight'],
+    muscles: ['Chest', 'Shoulders', 'Triceps'],
+    instructions: 'Hands slightly wider than shoulders, body in a straight line. Lower your chest to just above the floor, elbows at 45° to your body. Push back up. Drop to knees to scale.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'pike-push-up',
+    name: 'Pike Push Up',
+    category: 'shoulders',
+    equipment: ['bodyweight'],
+    muscles: ['Shoulders', 'Triceps', 'Upper Back'],
+    instructions: 'Start in a downward dog position, hips high. Bend elbows to lower your head toward the floor, then press back up. Keep your hips elevated throughout.',
+    defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'db-shoulder-press',
+    name: 'Dumbbell Shoulder Press',
+    category: 'shoulders',
+    equipment: ['dumbbells'],
+    muscles: ['Shoulders', 'Triceps', 'Upper Chest'],
+    instructions: 'Hold dumbbells at shoulder height, palms facing forward. Press straight up until arms are extended. Lower with control. Keep your core tight and avoid arching your lower back.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'db-lateral-raise',
+    name: 'Dumbbell Lateral Raise',
+    category: 'shoulders',
+    equipment: ['dumbbells'],
+    muscles: ['Side Delts'],
+    instructions: 'Hold light dumbbells at your sides. Raise arms out to the side to shoulder height with a slight bend in the elbow. Lead with your elbows, not your wrists. Lower slowly.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  // ─── Back ────────────────────────────────────────────────────────────────
+  {
+    id: 'db-row',
+    name: 'Dumbbell Bent-Over Row',
+    category: 'back',
+    equipment: ['dumbbells'],
+    muscles: ['Upper Back', 'Lats', 'Biceps'],
+    instructions: 'Hinge forward at the hips, back flat, dumbbells hanging. Pull elbows back and up, squeezing your shoulder blades together. Lower with control. Keep your core braced.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
+  },
+  {
+    id: 'banded-row',
+    name: 'Banded Row',
+    category: 'back',
+    equipment: ['bands'],
+    muscles: ['Upper Back', 'Rhomboids', 'Biceps'],
+    instructions: 'Anchor a band at waist height or sit with legs straight and band around feet. Pull the band to your torso, squeezing shoulder blades together. Control the return.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  {
+    id: 'band-pull-apart',
+    name: 'Band Pull-Apart',
+    category: 'back',
+    equipment: ['bands'],
+    muscles: ['Upper Back', 'Rear Delts', 'Rhomboids'],
+    instructions: 'Hold a resistance band at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together, keeping arms straight. Slowly return. Great for posture.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
+  },
+  {
+    id: 'banded-face-pull',
+    name: 'Banded Face Pull',
+    category: 'back',
+    equipment: ['bands'],
+    muscles: ['Rear Delts', 'Rotator Cuff', 'Upper Back'],
+    instructions: 'Anchor a band at face height. Pull the band toward your face, elbows high and flaring out, hands ending by your ears. Squeeze at the end position. Excellent for posture and shoulder health.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
+  },
+  {
+    id: 'superman',
+    name: 'Superman Hold',
+    category: 'back',
+    equipment: ['bodyweight'],
+    muscles: ['Lower Back', 'Glutes', 'Upper Back'],
+    instructions: 'Lie face down, arms extended overhead. Simultaneously lift your arms, chest, and legs off the floor. Hold briefly, then lower. Keep your neck neutral — look at the floor.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  // ─── Arms ────────────────────────────────────────────────────────────────
+  {
+    id: 'db-bicep-curl',
+    name: 'Dumbbell Bicep Curl',
+    category: 'arms',
+    equipment: ['dumbbells'],
+    muscles: ['Biceps'],
+    instructions: 'Hold dumbbells at sides, palms forward. Curl both up to shoulder height, keeping elbows at your sides. Squeeze at the top, then lower slowly. Avoid swinging.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  {
+    id: 'db-tricep-ext',
+    name: 'Dumbbell Tricep Extension',
+    category: 'arms',
+    equipment: ['dumbbells'],
+    muscles: ['Triceps'],
+    instructions: 'Hold one dumbbell with both hands overhead, arms extended. Lower behind your head by bending at the elbows. Press back up. Keep elbows pointing forward and close to your head.',
+    defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  {
+    id: 'banded-bicep-curl',
+    name: 'Banded Bicep Curl',
+    category: 'arms',
+    equipment: ['bands'],
+    muscles: ['Biceps'],
+    instructions: 'Stand on a resistance band, holding both ends. Curl both hands up toward your shoulders, keeping elbows at your sides. Lower with control. Constant tension from the band.',
+    defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
+  },
+  // ─── Core ────────────────────────────────────────────────────────────────
+  {
+    id: 'plank',
+    name: 'Plank',
+    category: 'core',
+    equipment: ['bodyweight'],
+    muscles: ['Core', 'Shoulders', 'Glutes'],
+    instructions: 'Forearms on the floor, elbows under shoulders. Body forms a straight line from head to heels. Breathe steadily. Don\'t let hips sag or rise — keep your glutes lightly squeezed.',
+    defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
+  },
+  {
+    id: 'side-plank',
+    name: 'Side Plank',
+    category: 'core',
+    equipment: ['bodyweight'],
+    muscles: ['Obliques', 'Core', 'Hip Abductors'],
+    instructions: 'Lie on your side, forearm on the floor. Stack your feet and lift your hips to form a straight line. Keep your top arm at your side or reach toward the ceiling. Hold steady.',
+    defaultSets: 3, defaultReps: null, defaultDuration: 20, defaultRest: 30, unit: 'seconds',
+  },
+  {
+    id: 'dead-bug',
+    name: 'Dead Bug',
+    category: 'core',
+    equipment: ['bodyweight'],
+    muscles: ['Deep Core', 'Lower Back'],
+    instructions: 'Lie on your back, arms toward ceiling, knees at 90°. Lower your right arm and left leg toward the floor, exhaling and pressing your lower back down. Return and repeat on the other side. Move slowly and with control. Great for back health.',
+    defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
+  },
+  {
+    id: 'bird-dog',
+    name: 'Bird Dog',
+    category: 'core',
+    equipment: ['bodyweight'],
+    muscles: ['Core', 'Lower Back', 'Glutes'],
+    instructions: 'On hands and knees, wrists under shoulders, knees under hips. Extend your right arm and left leg simultaneously, keeping hips level. Hold 2 seconds. Return and repeat on the other side. Essential for back stability.',
+    defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
+  },
+  // ─── Full Body / Cardio ──────────────────────────────────────────────────
+  {
+    id: 'mountain-climber',
+    name: 'Mountain Climber',
+    category: 'cardio',
+    equipment: ['bodyweight'],
+    muscles: ['Core', 'Shoulders', 'Hip Flexors'],
+    instructions: 'Start in a high plank. Drive one knee toward your chest, then quickly switch legs in a running motion. Keep hips level and core tight. Breathe continuously.',
+    defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
+  },
+  {
+    id: 'burpee',
+    name: 'Burpee',
+    category: 'cardio',
+    equipment: ['bodyweight'],
+    muscles: ['Full Body'],
+    instructions: 'From standing, crouch and place hands on floor. Jump feet back to plank. Do a push-up (optional). Jump feet forward, then explosively jump up with arms overhead. Scale by stepping instead of jumping.',
+    defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 60, unit: 'reps',
+  },
+];
+
+// ─── Generated Session Templates ─────────────────────────────────────────
+
+export const SESSION_TEMPLATES = {
+  A: {
+    name: 'Full Body A — Strength',
+    focus: 'Lower body + back',
+    exercises: [
+      { moveId: 'goblet-squat',    sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'rdl',             sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'push-up',         sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'db-row',          sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'dead-bug',        sets: 3, reps: 10, duration: null, rest: 40 },
+      { moveId: 'band-pull-apart', sets: 3, reps: 15, duration: null, rest: 30 },
+    ],
+  },
+  B: {
+    name: 'Full Body B — Conditioning',
+    focus: 'Glutes + posture',
+    exercises: [
+      { moveId: 'reverse-lunge',    sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'hip-thrust',       sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'db-shoulder-press',sets: 3, reps: 12, duration: null, rest: 45 },
+      { moveId: 'banded-face-pull', sets: 3, reps: 15, duration: null, rest: 30 },
+      { moveId: 'plank',            sets: 3, reps: null, duration: 30, rest: 40 },
+      { moveId: 'bird-dog',         sets: 3, reps: 10, duration: null, rest: 40 },
+    ],
+  },
+  C: {
+    name: 'Full Body C — Burn',
+    focus: 'Full body + cardio',
+    exercises: [
+      { moveId: 'sumo-squat',        sets: 3, reps: 15, duration: null, rest: 40 },
+      { moveId: 'glute-bridge',      sets: 3, reps: 15, duration: null, rest: 40 },
+      { moveId: 'banded-row',        sets: 3, reps: 15, duration: null, rest: 40 },
+      { moveId: 'mountain-climber',  sets: 3, reps: null, duration: 30, rest: 40 },
+      { moveId: 'superman',          sets: 3, reps: 12, duration: null, rest: 40 },
+      { moveId: 'side-plank',        sets: 3, reps: null, duration: 20, rest: 30 },
+    ],
+  },
+};
+
+export const ALTERNATIVE_ACTIVITIES = [
+  { id: 'dance',   name: 'Dance Class',    icon: '💃' },
+  { id: 'walk',    name: 'Long Walk',      icon: '🚶' },
+  { id: 'swim',    name: 'Swimming',       icon: '🏊' },
+  { id: 'bike',    name: 'Cycling',        icon: '🚴' },
+  { id: 'yoga',    name: 'Yoga',           icon: '🧘' },
+  { id: 'sport',   name: 'Sport / Game',   icon: '⚽' },
+  { id: 'other',   name: 'Other Activity', icon: '🏃' },
+];
+
+export const EQUIPMENT_OPTIONS = [
+  { id: 'bodyweight', label: 'Bodyweight (no equipment)' },
+  { id: 'bands',      label: 'Resistance bands' },
+  { id: 'dumbbells',  label: 'Dumbbells / weights' },
+];
+
+export function getMoveById(id) {
+  return MOVES.find(m => m.id === id);
+}
+
+export function getMovesByEquipment(equipment) {
+  if (!equipment || equipment.length === 0) return MOVES;
+  return MOVES.filter(m => m.equipment.some(e => equipment.includes(e)));
+}

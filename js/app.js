@@ -1,0 +1,1156 @@
+import { getProfile, saveProfile, logWorkout, getWorkoutByDate, getAllWorkouts,
+         getWeightHistory, getMeasurementHistory, getStepsHistory, getStepsByDate,
+         logWeight, logMeasurements, logSteps, exportAllData, importAllData,
+         toDateStr } from './db.js';
+import { MOVES, SESSION_TEMPLATES, ALTERNATIVE_ACTIVITIES, EQUIPMENT_OPTIONS,
+         getMoveById, getMovesByEquipment } from './data.js';
+import { generateDefaultPlan, getTodaySession, resolveSession, getStreak,
+         getSmartNudge, getMonthlyReport } from './plan.js';
+import { SessionPlayer, formatTimer, repsLabel } from './session.js';
+import { renderWeightChart, renderMeasurementsChart, renderStepsChart,
+         renderActivityCalendar } from './charts.js';
+import { initNotifications, showInAppNudge, notificationsConfigured,
+         requestNotificationPermission, setTrainingDayTags } from './notifications.js';
+
+// ─── State ─────────────────────────────────────────────────────────────────
+
+const state = {
+  profile: null,
+  player: null,
+  sessionData: null,
+  activeWorkoutTab: 'plan',
+  activeProgressTab: 'weight',
+  libraryFilter: 'all',
+  librarySearch: '',
+  ob: { step: 0, name: '', trainingDays: [1, 3, 5], notifyHour: 7, notifyMinute: 0, equipment: ['bodyweight', 'bands', 'dumbbells'], weight: '', waist: '', hip: '', thigh: '', healthNotes: '' },
+  reportDate: { year: new Date().getFullYear(), month: new Date().getMonth() + 1 },
+};
+
+const DAY_NAMES  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_SHORT  = ['S','M','T','W','T','F','S'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ─── Bootstrap ─────────────────────────────────────────────────────────────
+
+async function init() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  initNotifications();
+
+  document.getElementById('app').addEventListener('click', handleClick);
+  window.addEventListener('hashchange', route);
+
+  state.profile = await getProfile();
+
+  if (!state.profile) {
+    renderOnboarding();
+    return;
+  }
+
+  route();
+
+  const nudge = await getSmartNudge(state.profile.plan || {});
+  if (nudge.show) showInAppNudge(nudge.message);
+}
+
+// ─── Router ────────────────────────────────────────────────────────────────
+
+async function route() {
+  const hash = window.location.hash || '#home';
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', '#' + el.dataset.route === hash);
+  });
+  switch (hash) {
+    case '#home':     await renderHome();     break;
+    case '#workout':  await renderWorkout();  break;
+    case '#session':  renderSessionView();    break;
+    case '#progress': await renderProgress(); break;
+    case '#profile':  await renderProfile();  break;
+    default:          await renderHome();
+  }
+}
+
+function setView(html, title = 'FitTrack', showNav = true) {
+  document.getElementById('main').innerHTML = html;
+  document.querySelector('.header-logo').textContent = title;
+  document.querySelector('.bottom-nav').style.display = showNav ? 'flex' : 'none';
+}
+
+// ─── Home View ─────────────────────────────────────────────────────────────
+
+async function renderHome() {
+  const profile = state.profile;
+  if (!profile) { renderOnboarding(); return; }
+
+  const plan = profile.plan || {};
+  const todayKey = toDateStr(new Date());
+  const todaySession = getTodaySession(plan);
+  const completedToday = await getWorkoutByDate(todayKey);
+  const streak = await getStreak(plan);
+  const stepsEntry = await getStepsByDate(todayKey);
+  const steps = stepsEntry?.count || 0;
+  const goal = profile.stepGoal || 8000;
+  const pct = Math.min(100, Math.round((steps / goal) * 100));
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const name = profile.name?.split(' ')[0] || 'there';
+
+  const streakHtml = streak > 0
+    ? `<div class="streak-row">🔥 ${streak}-session streak</div>`
+    : '';
+
+  let mainCard = '';
+
+  if (completedToday) {
+    const dur = completedToday.durationMinutes || '?';
+    const label = completedToday.isAlternative ? completedToday.alternativeName : completedToday.sessionName;
+    mainCard = `
+      <div class="card done-card">
+        <div class="done-big-icon">🎉</div>
+        <div class="done-title">Nice work!</div>
+        <div class="done-subtitle">${label} — ${dur} min</div>
+      </div>
+      <div class="card steps-card">
+        <div class="card-title">Rest Day Steps</div>
+        <div class="steps-numbers">
+          <span class="steps-current">${steps.toLocaleString()}</span>
+          <span class="steps-goal">/ ${goal.toLocaleString()}</span>
+        </div>
+        <div class="steps-bar-wrap"><div class="steps-bar-fill" style="width:${pct}%"></div></div>
+        <div class="steps-label">${pct >= 100 ? '🎯 Goal reached!' : `${goal - steps > 0 ? (goal - steps).toLocaleString() : 0} steps to go`}</div>
+        <button class="btn btn-secondary btn-full btn-sm" data-action="log-steps">Update step count</button>
+      </div>`;
+  } else if (todaySession) {
+    const resolved = resolveSession(todaySession);
+    const exList = resolved.exercises.slice(0, 4).map(e =>
+      `<div class="exercise-preview-item"><span class="dot"></span>${e.move?.name || e.moveId}</div>`
+    ).join('') + (resolved.exercises.length > 4 ? `<div class="exercise-preview-item"><span class="dot"></span>+${resolved.exercises.length - 4} more</div>` : '');
+
+    mainCard = `
+      <div class="card today-card">
+        <div class="today-badge">Today's Training</div>
+        <div class="session-name">${todaySession.name}</div>
+        <div class="session-focus">${todaySession.focus}</div>
+        <div class="exercise-preview-list">${exList}</div>
+        <div class="session-meta">${resolved.exercises.length} exercises · ~${resolved.exercises.length * 6} min</div>
+        <button class="btn btn-primary btn-full btn-xl" data-action="start-session">Start Workout</button>
+        <button class="btn btn-ghost btn-full" data-action="swap-session">Swap for alternative activity</button>
+      </div>`;
+  } else {
+    mainCard = `
+      <div class="card steps-card">
+        <div class="today-badge">Rest Day — Steps Goal</div>
+        <div class="steps-numbers">
+          <span class="steps-current">${steps.toLocaleString()}</span>
+          <span class="steps-goal">/ ${goal.toLocaleString()}</span>
+        </div>
+        <div class="steps-bar-wrap"><div class="steps-bar-fill" style="width:${pct}%"></div></div>
+        <div class="steps-label">${pct >= 100 ? '🎯 Goal reached!' : `${(goal - steps).toLocaleString()} steps to go`}</div>
+        <button class="btn btn-primary btn-full" data-action="log-steps">Update step count</button>
+      </div>`;
+  }
+
+  setView(`
+    <div class="view">
+      <div>
+        <div class="greeting">${greeting}, ${name}</div>
+        <div class="greeting-sub">${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      </div>
+      ${streakHtml}
+      ${mainCard}
+      <div class="card quick-log card-sm">
+        <button class="btn btn-secondary btn-sm" data-action="log-weight">+ Weight</button>
+        <button class="btn btn-secondary btn-sm" data-action="log-measurements">+ Measurements</button>
+      </div>
+    </div>`, 'FitTrack');
+}
+
+// ─── Workout View ──────────────────────────────────────────────────────────
+
+async function renderWorkout() {
+  const profile = state.profile;
+  const plan = profile?.plan || {};
+  const tab = state.activeWorkoutTab;
+
+  const planHtml = renderPlanTab(plan);
+  const libHtml  = renderLibraryTab();
+
+  setView(`
+    <div class="view">
+      <div class="tab-pills">
+        <button class="tab-pill ${tab === 'plan' ? 'active' : ''}" data-action="workout-tab" data-tab="plan">My Plan</button>
+        <button class="tab-pill ${tab === 'library' ? 'active' : ''}" data-action="workout-tab" data-tab="library">Exercise Library</button>
+      </div>
+      <div id="tab-plan" ${tab !== 'plan' ? 'class="hidden"' : ''}>${planHtml}</div>
+      <div id="tab-library" ${tab !== 'library' ? 'class="hidden"' : ''}>${libHtml}</div>
+    </div>`, 'Training');
+}
+
+function renderPlanTab(plan) {
+  const todayDay = new Date().getDay();
+  const rows = DAY_NAMES.map((dayName, i) => {
+    const session = plan[i];
+    const isToday = i === todayDay;
+    const rowClass = session ? (isToday ? 'day-row today-row' : 'day-row') : 'day-row rest-row';
+    if (!session) {
+      return `<div class="${rowClass}">
+        <div class="day-row-header">
+          <div class="day-name-badge">${dayName.slice(0,2)}</div>
+          <div class="day-row-info"><div class="day-row-focus">Rest day</div></div>
+          <div class="day-row-tag">REST</div>
+        </div>
+      </div>`;
+    }
+    const resolved = resolveSession(session);
+    const exItems = resolved.exercises.map(e =>
+      `<div class="day-exercise-item">${e.move?.name || e.moveId} · ${repsLabel(e)}</div>`
+    ).join('');
+    return `<div class="${rowClass}">
+      <div class="day-row-header">
+        <div class="day-name-badge">${dayName.slice(0,2)}</div>
+        <div class="day-row-info">
+          <div class="day-row-session">${session.name}</div>
+          <div class="day-row-focus">${session.focus}</div>
+        </div>
+        <div class="day-row-tag">${session.sessionKey}</div>
+      </div>
+      <div class="day-exercises">${exItems}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="week-grid">${rows}</div>`;
+}
+
+function renderLibraryTab() {
+  const filter = state.libraryFilter;
+  const search = state.librarySearch.toLowerCase();
+
+  let moves = MOVES;
+  if (filter !== 'all') moves = moves.filter(m => m.equipment.includes(filter));
+  if (search) moves = moves.filter(m =>
+    m.name.toLowerCase().includes(search) ||
+    m.muscles.some(mu => mu.toLowerCase().includes(search)) ||
+    m.category.toLowerCase().includes(search)
+  );
+
+  const cards = moves.map(m => `
+    <div class="move-card" data-action="view-move" data-move-id="${m.id}">
+      <div class="move-card-name">${m.name}</div>
+      <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
+      <div class="equip-tags">${m.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
+    </div>`).join('');
+
+  return `
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" class="search-input" placeholder="Search exercises…" value="${state.librarySearch}" data-action="library-search">
+    </div>
+    <div class="chip-row">
+      ${['all','bodyweight','bands','dumbbells'].map(f => `
+        <button class="chip ${filter === f ? 'active' : ''}" data-action="library-filter" data-filter="${f}">
+          ${f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+        </button>`).join('')}
+    </div>
+    <div class="move-list">${cards || '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No exercises match your filter.</div></div>'}</div>`;
+}
+
+// ─── Session View ──────────────────────────────────────────────────────────
+
+function renderSessionView() {
+  if (!state.sessionData) { window.location.hash = '#home'; return; }
+
+  document.querySelector('.bottom-nav').style.display = 'none';
+  document.querySelector('.header-logo').textContent = state.sessionData.name;
+  document.getElementById('main').innerHTML = `<div class="view-session" id="session-container"></div>`;
+
+  if (state.player) state.player.destroy();
+
+  state.player = new SessionPlayer(
+    state.sessionData,
+    () => renderSessionContent(state.player),
+    () => { /* saved inside SessionPlayer */ }
+  );
+
+  renderSessionContent(state.player);
+}
+
+function renderSessionContent(player) {
+  const container = document.getElementById('session-container');
+  if (!container) return;
+
+  const total = player.totalExercises;
+  const ei    = player.exerciseIndex;
+  const si    = player.setIndex;
+  const ex    = player.currentExercise;
+  const move  = player.currentMove;
+  const progPct = Math.round(((ei + (si / (ex?.sets || 1)) * 0.5) / total) * 100);
+
+  const dotsHtml = player.session.exercises.map((e, i) => {
+    const m = getMoveById(e.moveId);
+    const cls = i < ei ? 'exercise-dot done' : i === ei ? 'exercise-dot current' : 'exercise-dot';
+    return `<button class="${cls}" data-action="jump-exercise" data-index="${i}" title="${m?.name || ''}">${i + 1}</button>`;
+  }).join('');
+
+  const header = `
+    <div class="session-header">
+      <div class="session-progress-bar-wrap">
+        <div class="session-progress-bar-fill" style="width:${progPct}%"></div>
+      </div>
+      <span class="session-progress-label">${ei + 1}/${total}</span>
+      <button class="btn btn-ghost btn-sm" data-action="exit-session">✕</button>
+    </div>`;
+
+  if (player.phase === 'done') {
+    const dur = Math.round((Date.now() - player.startTime) / 60000);
+    container.innerHTML = header + `
+      <div class="session-done">
+        <div class="session-done-icon">🏆</div>
+        <div class="session-done-title">Session Complete!</div>
+        <div class="session-done-stats">
+          <div class="session-stat"><div class="session-stat-value">${total}</div><div class="session-stat-label">Exercises</div></div>
+          <div class="session-stat"><div class="session-stat-value">${dur}</div><div class="session-stat-label">Minutes</div></div>
+          <div class="session-stat"><div class="session-stat-value">${total * (ex?.sets || 3)}</div><div class="session-stat-label">Sets</div></div>
+        </div>
+        <button class="btn btn-primary btn-full btn-xl" data-action="finish-session">Back to Home</button>
+        <button class="btn btn-ghost btn-full" data-action="log-weight">+ Log today's weight</button>
+      </div>`;
+    return;
+  }
+
+  if (player.phase === 'intro') {
+    container.innerHTML = header + `
+      <div class="phase-intro">
+        <div class="exercise-number">Exercise ${ei + 1} of ${total}</div>
+        <div class="exercise-title">${move?.name || ''}</div>
+        <div class="muscles-tags">${(move?.muscles || []).map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
+        <div class="sets-reps-row">
+          <div class="sets-reps-item">
+            <div class="sets-reps-value">${si + 1}/${ex.sets}</div>
+            <div class="sets-reps-label">Set</div>
+          </div>
+          <div class="sets-reps-divider">·</div>
+          <div class="sets-reps-item">
+            <div class="sets-reps-value">${ex.duration ? ex.duration + 's' : ex.reps}</div>
+            <div class="sets-reps-label">${ex.unit === 'each' ? 'Each side' : ex.duration ? 'Seconds' : 'Reps'}</div>
+          </div>
+          <div class="sets-reps-divider">·</div>
+          <div class="sets-reps-item">
+            <div class="sets-reps-value">${ex.rest}s</div>
+            <div class="sets-reps-label">Rest</div>
+          </div>
+        </div>
+        <div class="instructions-box">${move?.instructions || ''}</div>
+        <button class="btn btn-primary btn-full btn-xl" data-action="start-set">Start Set</button>
+        <div class="exercise-mini-nav">${dotsHtml}</div>
+      </div>`;
+    return;
+  }
+
+  if (player.phase === 'active') {
+    if (player.isTimedExercise) {
+      container.innerHTML = header + `
+        <div class="phase-active">
+          <div class="exercise-number">Exercise ${ei + 1} — Set ${si + 1} of ${ex.sets}</div>
+          <div class="exercise-title">${move?.name || ''}</div>
+          ${timerCircleSVG(player.timerValue, ex.duration, false)}
+          <div class="instructions-box text-sm">${move?.instructions || ''}</div>
+          <div class="exercise-mini-nav">${dotsHtml}</div>
+        </div>`;
+    } else {
+      container.innerHTML = header + `
+        <div class="phase-active" style="text-align:center">
+          <div class="exercise-number">Exercise ${ei + 1} — Set ${si + 1} of ${ex.sets}</div>
+          <div class="exercise-title">${move?.name || ''}</div>
+          <div class="reps-big">${ex.reps}</div>
+          <div class="reps-unit">${ex.unit === 'each' ? 'reps each side' : 'reps'}</div>
+          <div class="instructions-box text-sm" style="text-align:left">${move?.instructions || ''}</div>
+          <button class="btn btn-primary btn-full btn-xl" data-action="complete-set">Done ✓</button>
+          <div class="exercise-mini-nav">${dotsHtml}</div>
+        </div>`;
+    }
+    return;
+  }
+
+  if (player.phase === 'rest') {
+    const nextEx = player.session.exercises[ei + (si >= ex.sets - 1 ? 1 : 0)];
+    const nextMove = nextEx ? getMoveById(nextEx.moveId) : null;
+    const upNext = nextMove ? `<div class="text-muted text-sm text-center">Up next: <strong>${nextMove.name}</strong></div>` : '';
+
+    container.innerHTML = header + `
+      <div class="phase-active" style="text-align:center">
+        <div class="exercise-number">Set ${si + 1} of ${ex.sets} complete</div>
+        <div class="exercise-title" style="color:var(--accent)">Rest</div>
+        ${timerCircleSVG(player.timerValue, ex.rest, true)}
+        ${upNext}
+        <button class="btn btn-ghost btn-full" data-action="skip-rest">Skip rest →</button>
+        <div class="exercise-mini-nav">${dotsHtml}</div>
+      </div>`;
+  }
+}
+
+function timerCircleSVG(value, total, isRest) {
+  const r = 54, circ = 2 * Math.PI * r;
+  const progress = total > 0 ? value / total : 1;
+  const offset = circ * (1 - progress);
+  const cls = isRest ? 'timer-arc rest-arc' : 'timer-arc';
+  return `
+    <div class="timer-circle-wrap">
+      <svg class="timer-svg" viewBox="0 0 120 120">
+        <circle class="timer-track" cx="60" cy="60" r="${r}"/>
+        <circle class="${cls}" cx="60" cy="60" r="${r}"
+          stroke-dasharray="${circ.toFixed(2)}"
+          stroke-dashoffset="${offset.toFixed(2)}"/>
+        <text class="timer-value-text" x="60" y="55">${formatTimer(value)}</text>
+        <text class="timer-label-text" x="60" y="76">${isRest ? 'REST' : 'GO'}</text>
+      </svg>
+    </div>`;
+}
+
+// ─── Progress View ─────────────────────────────────────────────────────────
+
+async function renderProgress() {
+  const tab = state.activeProgressTab;
+  const tabs = ['weight','measurements','steps','activity'];
+
+  setView(`
+    <div class="view">
+      <div class="tab-pills">
+        ${tabs.map(t => `<button class="tab-pill ${t === tab ? 'active' : ''}" data-action="progress-tab" data-tab="${t}">
+          ${{weight:'Weight', measurements:'Body', steps:'Steps', activity:'Activity'}[t]}</button>`).join('')}
+      </div>
+      <div id="progress-content"></div>
+    </div>`, 'Progress');
+
+  await renderProgressTab(tab);
+}
+
+async function renderProgressTab(tab) {
+  const el = document.getElementById('progress-content');
+  if (!el) return;
+
+  if (tab === 'weight') {
+    const data = await getWeightHistory();
+    const last = data[data.length - 1];
+    const first = data[0];
+    const change = last && first && data.length > 1 ? +(last.kg - first.kg).toFixed(1) : null;
+    const changeHtml = change !== null
+      ? `<span class="stat-change ${change < 0 ? 'pos' : 'neg'}">${change > 0 ? '+' : ''}${change} kg total</span>`
+      : '';
+
+    el.innerHTML = `
+      <div class="card chart-card">
+        <div class="card-title">Weight</div>
+        <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+      </div>
+      <div class="card card-sm">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value">${last ? last.kg + ' kg' : '—'}</div><div class="stat-label">Current</div>${changeHtml}</div>
+          <div class="stat-box"><div class="stat-value">${first ? first.kg + ' kg' : '—'}</div><div class="stat-label">Starting</div></div>
+          <div class="stat-box"><div class="stat-value">${data.length}</div><div class="stat-label">Entries</div></div>
+        </div>
+      </div>`;
+    if (data.length) renderWeightChart('main-chart', data);
+    else el.querySelector('.chart-wrap').innerHTML = emptyChartMsg('No weight entries yet. Tap + Weight on the home screen.');
+  }
+
+  else if (tab === 'measurements') {
+    const data = await getMeasurementHistory();
+    const last = data[data.length - 1];
+    el.innerHTML = `
+      <div class="card chart-card">
+        <div class="card-title">Body Measurements (cm)</div>
+        <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+      </div>
+      <div class="card card-sm">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value">${last?.waist || '—'}</div><div class="stat-label">Waist</div></div>
+          <div class="stat-box"><div class="stat-value">${last?.hip || '—'}</div><div class="stat-label">Hip</div></div>
+          <div class="stat-box"><div class="stat-value">${last?.thigh || '—'}</div><div class="stat-label">Thigh</div></div>
+        </div>
+      </div>`;
+    if (data.length) renderMeasurementsChart('main-chart', data);
+    else el.querySelector('.chart-wrap').innerHTML = emptyChartMsg('No measurements yet. Tap + Measurements on the home screen.');
+  }
+
+  else if (tab === 'steps') {
+    const data = await getStepsHistory();
+    const goal = state.profile?.stepGoal || 8000;
+    const daysHit = data.filter(d => d.count >= goal).length;
+    const avg = data.length ? Math.round(data.reduce((s, d) => s + d.count, 0) / data.length) : 0;
+    el.innerHTML = `
+      <div class="card chart-card">
+        <div class="card-title">Daily Steps (last 30 days)</div>
+        <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+      </div>
+      <div class="card card-sm">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value">${avg.toLocaleString()}</div><div class="stat-label">Avg Steps</div></div>
+          <div class="stat-box"><div class="stat-value">${daysHit}</div><div class="stat-label">Goals Hit</div></div>
+          <div class="stat-box"><div class="stat-value">${goal.toLocaleString()}</div><div class="stat-label">Daily Goal</div></div>
+        </div>
+      </div>`;
+    if (data.length) renderStepsChart('main-chart', data, goal);
+    else el.querySelector('.chart-wrap').innerHTML = emptyChartMsg('No step entries yet. Log your steps on rest days.');
+  }
+
+  else if (tab === 'activity') {
+    const workouts = await getAllWorkouts();
+    const plan = state.profile?.plan || {};
+    el.innerHTML = `
+      <div class="card chart-card">
+        <div class="card-title">Last 12 Weeks</div>
+        <div id="cal-container"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--primary);display:inline-block"></span>Trained</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger);opacity:0.5;display:inline-block"></span>Missed</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--surface2);display:inline-block"></span>Rest</span>
+        </div>
+      </div>
+      <div class="card card-sm">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value">${workouts.filter(w => w.completed).length}</div><div class="stat-label">Total Sessions</div></div>
+          <div class="stat-box"><div class="stat-value">${workouts.filter(w => w.isAlternative).length}</div><div class="stat-label">Alternatives</div></div>
+        </div>
+      </div>`;
+    renderActivityCalendar('cal-container', workouts, plan);
+  }
+}
+
+function emptyChartMsg(text) {
+  return `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">${text}</div></div>`;
+}
+
+// ─── Profile View ──────────────────────────────────────────────────────────
+
+async function renderProfile() {
+  const p = state.profile;
+  if (!p) return;
+
+  const { year, month } = state.reportDate;
+
+  setView(`
+    <div class="view">
+      <div class="card">
+        <div class="profile-name">${p.name || 'You'}</div>
+        <div class="profile-goal-tags">
+          <span class="goal-tag">Lose weight</span>
+          <span class="goal-tag">Build muscle</span>
+          <span class="goal-tag">Better posture</span>
+        </div>
+        <div class="text-muted text-sm mt-8">Training ${(Object.keys(p.plan || {}).length)} days/week · ${p.stepGoal?.toLocaleString() || '8,000'} step goal</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Health Notes</div>
+        <textarea class="form-input" id="health-notes-input" rows="4" placeholder="Posture issues, injuries, things to be mindful of…">${p.healthNotes || ''}</textarea>
+        <button class="btn btn-secondary btn-sm" data-action="save-health-notes" style="margin-top:10px">Save notes</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Training Schedule</div>
+        <div class="day-picker">
+          ${DAY_NAMES.map((name, i) => {
+            const sel = Object.keys(p.plan || {}).map(Number).includes(i);
+            return `<button class="day-pill ${sel ? 'selected' : ''}" data-action="toggle-training-day" data-day="${i}">${name.slice(0,2)}</button>`;
+          }).join('')}
+        </div>
+        <div class="text-muted text-sm mt-8">Tap days to toggle. Plan regenerates automatically.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Equipment Available</div>
+        ${EQUIPMENT_OPTIONS.map(eq => {
+          const checked = (p.equipment || []).includes(eq.id);
+          return `<label class="check-item">
+            <input type="checkbox" data-action="toggle-equipment" data-eq="${eq.id}" ${checked ? 'checked' : ''}>
+            ${eq.label}
+          </label>`;
+        }).join('')}
+      </div>
+
+      ${notificationsConfigured() ? `
+      <div class="card">
+        <div class="card-title">Push Notifications</div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted text-sm">Training reminders &amp; nudges</span>
+          <button class="btn btn-secondary btn-sm" data-action="request-notifications">Enable</button>
+        </div>
+      </div>` : `
+      <div class="card">
+        <div class="card-title">Push Notifications</div>
+        <div class="text-muted text-sm">Add your OneSignal App ID in <code>js/config.js</code> to enable push notifications. In-app nudges work without setup.</div>
+      </div>`}
+
+      <div class="card">
+        <div class="card-title">Monthly Report</div>
+        <div class="report-month-picker">
+          <button data-action="report-prev">‹</button>
+          <span class="report-month-label">${MONTH_NAMES[month - 1]} ${year}</span>
+          <button data-action="report-next">›</button>
+        </div>
+        <div id="report-content" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Data Backup</div>
+        <div class="flex gap-8">
+          <button class="btn btn-secondary btn-sm" data-action="export-data">Export JSON</button>
+          <button class="btn btn-secondary btn-sm" data-action="import-data">Import JSON</button>
+        </div>
+        <div class="text-muted text-sm mt-8">Export to back up your data before changing phones.</div>
+      </div>
+
+      <div class="card">
+        <button class="btn btn-danger btn-sm" data-action="reset-app">Reset &amp; clear all data</button>
+      </div>
+    </div>`, 'Profile');
+
+  await loadMonthlyReport();
+}
+
+async function loadMonthlyReport() {
+  const el = document.getElementById('report-content');
+  if (!el || !state.profile) return;
+
+  const { year, month } = state.reportDate;
+  const report = await getMonthlyReport(state.profile.plan || {}, year, month);
+
+  const pct = report.planned > 0 ? Math.round(((report.completed + report.alternatives) / report.planned) * 100) : 0;
+  let summary = '';
+  if (report.planned === 0) {
+    summary = 'No training days planned for this month.';
+  } else if (pct >= 90) {
+    summary = `Outstanding month — you hit ${pct}% of your planned sessions. Keep this up!`;
+  } else if (pct >= 70) {
+    summary = `Solid effort — ${report.completed} sessions completed${report.alternatives > 0 ? ` plus ${report.alternatives} alternative activities` : ''}. A few missed but overall good consistency.`;
+  } else if (pct >= 50) {
+    summary = `${report.completed} of ${report.planned} sessions done (${pct}%). Room to improve — try scheduling sessions at a fixed time.`;
+  } else {
+    summary = `${report.completed} sessions completed this month. Life gets in the way — just aim for one more session next month.`;
+  }
+
+  el.innerHTML = `
+    <div class="report-grid">
+      <div class="report-cell"><div class="report-value">${report.planned}</div><div class="report-label">Planned Sessions</div></div>
+      <div class="report-cell"><div class="report-value">${report.completed}</div><div class="report-label">Completed</div></div>
+      <div class="report-cell"><div class="report-value">${report.alternatives}</div><div class="report-label">Alternatives</div></div>
+      <div class="report-cell"><div class="report-value">${pct}%</div><div class="report-label">Consistency</div></div>
+    </div>
+    <div class="report-summary">${summary}</div>`;
+}
+
+// ─── Onboarding ─────────────────────────────────────────────────────────────
+
+function renderOnboarding() {
+  document.querySelector('.bottom-nav').style.display = 'none';
+  document.querySelector('.header-logo').textContent = 'FitTrack';
+  const ob = state.ob;
+  const steps = 6;
+
+  const dots = Array.from({ length: steps }, (_, i) =>
+    `<div class="ob-dot ${i <= ob.step ? 'active' : ''}"></div>`).join('');
+
+  const stepContent = [
+    // Step 0: Welcome + name
+    `<div class="ob-title">Let's get you moving 💪</div>
+     <div class="ob-subtitle">A few quick questions to set up your personal plan. Takes about 2 minutes.</div>
+     <div class="ob-content">
+       <div class="form-group">
+         <label class="form-label">Your first name</label>
+         <input type="text" class="form-input" id="ob-name" placeholder="e.g. Anna" value="${ob.name}" autocomplete="given-name">
+       </div>
+     </div>`,
+
+    // Step 1: Training days
+    `<div class="ob-title">When do you train?</div>
+     <div class="ob-subtitle">Choose 3 days per week. You can always change this later.</div>
+     <div class="ob-content">
+       <div class="day-picker">
+         ${DAY_NAMES.map((n, i) => `<button class="day-pill ${ob.trainingDays.includes(i) ? 'selected' : ''}" data-ob-day="${i}">${n.slice(0,2)}</button>`).join('')}
+       </div>
+       <div class="text-muted text-sm">Selected: ${ob.trainingDays.map(d => DAY_NAMES[d]).join(', ') || 'none'}</div>
+     </div>`,
+
+    // Step 2: Notification time
+    `<div class="ob-title">When should we remind you?</div>
+     <div class="ob-subtitle">We'll send a push notification on training days at this time.</div>
+     <div class="ob-content">
+       <div class="form-row">
+         <div class="form-group">
+           <label class="form-label">Hour</label>
+           <select class="form-input" id="ob-hour">
+             ${Array.from({length:24},(_,i)=>`<option value="${i}" ${ob.notifyHour===i?'selected':''}>${String(i).padStart(2,'0')}</option>`).join('')}
+           </select>
+         </div>
+         <div class="form-group">
+           <label class="form-label">Minute</label>
+           <select class="form-input" id="ob-minute">
+             ${[0,15,30,45].map(m=>`<option value="${m}" ${ob.notifyMinute===m?'selected':''}>${String(m).padStart(2,'0')}</option>`).join('')}
+           </select>
+         </div>
+       </div>
+       <div class="text-muted text-sm">You'll also get in-app nudges if you haven't trained in 2+ days — no setup needed for those.</div>
+     </div>`,
+
+    // Step 3: Equipment
+    `<div class="ob-title">What equipment do you have?</div>
+     <div class="ob-subtitle">We'll tailor your plan to what's available at home.</div>
+     <div class="ob-content">
+       ${EQUIPMENT_OPTIONS.map(eq => `<label class="check-item">
+         <input type="checkbox" data-ob-eq="${eq.id}" ${ob.equipment.includes(eq.id) ? 'checked' : ''}>
+         ${eq.label}
+       </label>`).join('')}
+     </div>`,
+
+    // Step 4: Starting measurements (optional)
+    `<div class="ob-title">Starting point <span style="color:var(--text-muted);font-size:16px">(optional)</span></div>
+     <div class="ob-subtitle">Track your progress from day one. Skip if you prefer to add these later.</div>
+     <div class="ob-content">
+       <div class="form-row">
+         <div class="form-group">
+           <label class="form-label">Weight (kg)</label>
+           <input type="number" class="form-input" id="ob-weight" placeholder="70" value="${ob.weight}" step="0.1" min="30" max="300">
+         </div>
+       </div>
+       <div class="form-row">
+         <div class="form-group"><label class="form-label">Waist (cm)</label><input type="number" class="form-input" id="ob-waist" placeholder="80" value="${ob.waist}"></div>
+         <div class="form-group"><label class="form-label">Hip (cm)</label><input type="number" class="form-input" id="ob-hip" placeholder="95" value="${ob.hip}"></div>
+       </div>
+       <div class="form-row">
+         <div class="form-group"><label class="form-label">Thigh (cm)</label><input type="number" class="form-input" id="ob-thigh" placeholder="55" value="${ob.thigh}"></div>
+       </div>
+     </div>`,
+
+    // Step 5: Health notes
+    `<div class="ob-title">Anything to keep in mind?</div>
+     <div class="ob-subtitle">Posture issues, tension spots, injuries — note whatever is relevant. You can always edit this later.</div>
+     <div class="ob-content">
+       <div class="form-group">
+         <label class="form-label">Health notes <span style="color:var(--text-muted)">(optional)</span></label>
+         <textarea class="form-input" id="ob-notes" rows="5" placeholder="e.g. Bad posture and tension in upper back and neck. Can do all movements.">${ob.healthNotes}</textarea>
+       </div>
+     </div>`,
+  ][ob.step] || '';
+
+  const isLast = ob.step === steps - 1;
+
+  document.getElementById('main').innerHTML = `
+    <div class="onboarding">
+      <div class="ob-progress">${dots}</div>
+      ${stepContent}
+      <div class="ob-actions">
+        <button class="btn btn-primary btn-full btn-xl" data-action="ob-next">
+          ${isLast ? 'Create My Plan 🚀' : 'Continue →'}
+        </button>
+        ${ob.step > 0 ? `<button class="btn btn-ghost btn-full btn-sm" data-action="ob-back">← Back</button>` : ''}
+      </div>
+    </div>`;
+}
+
+async function finishOnboarding() {
+  const ob = state.ob;
+  const plan = generateDefaultPlan(ob.trainingDays);
+
+  const profile = {
+    name: ob.name || 'You',
+    goals: ['lose-weight', 'build-muscle', 'posture'],
+    trainingDays: ob.trainingDays,
+    notifyHour: ob.notifyHour,
+    notifyMinute: ob.notifyMinute,
+    equipment: ob.equipment,
+    healthNotes: ob.healthNotes,
+    stepGoal: 8000,
+    plan,
+    createdAt: new Date().toISOString(),
+  };
+
+  await saveProfile(profile);
+
+  if (ob.weight) await logWeight(parseFloat(ob.weight));
+  const hasM = ob.waist || ob.hip || ob.thigh;
+  if (hasM) await logMeasurements({ waist: +ob.waist || null, hip: +ob.hip || null, thigh: +ob.thigh || null });
+
+  state.profile = await getProfile();
+  await setTrainingDayTags(ob.trainingDays, ob.notifyHour, ob.notifyMinute).catch(() => {});
+
+  document.querySelector('.bottom-nav').style.display = 'flex';
+  window.location.hash = '#home';
+}
+
+// ─── Modals ────────────────────────────────────────────────────────────────
+
+function showModal(html) {
+  closeModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal-sheet">${html}</div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.body.appendChild(overlay);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay')?.remove();
+}
+
+function showLogWeight() {
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Weight</div>
+    <div class="form-group">
+      <label class="form-label">Weight (kg)</label>
+      <input type="number" class="form-input" id="modal-weight" placeholder="70.5" step="0.1" min="30" max="300">
+    </div>
+    <button class="btn btn-primary btn-full" data-action="save-weight">Save</button>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+  setTimeout(() => document.getElementById('modal-weight')?.focus(), 100);
+}
+
+function showLogMeasurements() {
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Measurements</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Waist (cm)</label><input type="number" class="form-input" id="modal-waist" placeholder="80"></div>
+      <div class="form-group"><label class="form-label">Hip (cm)</label><input type="number" class="form-input" id="modal-hip" placeholder="95"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Thigh (cm)</label><input type="number" class="form-input" id="modal-thigh" placeholder="55"></div>
+    <button class="btn btn-primary btn-full" data-action="save-measurements">Save</button>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+}
+
+function showLogSteps() {
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Steps</div>
+    <div class="text-muted text-sm" style="margin-bottom:8px">Check your iPhone Health app for today's step count.</div>
+    <div class="form-group">
+      <label class="form-label">Steps today</label>
+      <input type="number" class="form-input" id="modal-steps" placeholder="7500" min="0" max="100000">
+    </div>
+    <button class="btn btn-primary btn-full" data-action="save-steps">Save</button>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+  setTimeout(() => document.getElementById('modal-steps')?.focus(), 100);
+}
+
+function showSwapSession() {
+  const altItems = ALTERNATIVE_ACTIVITIES.map(a =>
+    `<button class="alt-item" data-action="log-alternative" data-alt-id="${a.id}" data-alt-name="${a.name}">
+      <span class="alt-icon">${a.icon}</span>${a.name}
+    </button>`).join('');
+
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">What are you doing instead?</div>
+    <div class="text-muted text-sm" style="margin-bottom:12px">This counts as your training for today.</div>
+    <div class="alt-list">${altItems}</div>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+}
+
+function showMoveDetail(moveId) {
+  const move = getMoveById(moveId);
+  if (!move) return;
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">${move.name}</div>
+    <div class="muscles-tags">${move.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
+    <div class="equip-tags" style="margin-top:8px">${move.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
+    <div class="instructions-box" style="margin-top:12px">${move.instructions}</div>
+    <div class="flex gap-8" style="margin-top:4px">
+      <div class="stat-box"><div class="stat-value">${move.defaultSets}</div><div class="stat-label">Sets</div></div>
+      <div class="stat-box"><div class="stat-value">${move.defaultDuration ? move.defaultDuration + 's' : move.defaultReps}</div><div class="stat-label">${move.unit === 'each' ? 'Each Side' : move.defaultDuration ? 'Seconds' : 'Reps'}</div></div>
+      <div class="stat-box"><div class="stat-value">${move.defaultRest}s</div><div class="stat-label">Rest</div></div>
+    </div>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Close</button>`);
+}
+
+// ─── Event Handler ─────────────────────────────────────────────────────────
+
+async function handleClick(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+
+  switch (action) {
+    // Navigation
+    case 'workout-tab':
+      state.activeWorkoutTab = el.dataset.tab;
+      await renderWorkout();
+      break;
+    case 'progress-tab':
+      state.activeProgressTab = el.dataset.tab;
+      await renderProgress();
+      break;
+
+    // Library
+    case 'library-filter':
+      state.libraryFilter = el.dataset.filter;
+      state.activeWorkoutTab = 'library';
+      await renderWorkout();
+      break;
+    case 'view-move':
+      showMoveDetail(el.dataset.moveId);
+      break;
+
+    // Home actions
+    case 'start-session': {
+      const session = getTodaySession(state.profile.plan || {});
+      if (!session) break;
+      state.sessionData = resolveSession(session);
+      window.location.hash = '#session';
+      break;
+    }
+    case 'swap-session':
+      showSwapSession();
+      break;
+    case 'log-alternative': {
+      await logWorkout({
+        sessionKey: 'alt',
+        sessionName: el.dataset.altName,
+        completed: true,
+        isAlternative: true,
+        alternativeName: el.dataset.altName,
+        durationMinutes: 45,
+        exercisesCompleted: 0,
+      });
+      closeModal();
+      await renderHome();
+      break;
+    }
+    case 'log-weight':   showLogWeight();        break;
+    case 'log-measurements': showLogMeasurements(); break;
+    case 'log-steps':    showLogSteps();         break;
+
+    // Saves from modals
+    case 'save-weight': {
+      const v = parseFloat(document.getElementById('modal-weight')?.value);
+      if (!isNaN(v) && v > 0) { await logWeight(v); closeModal(); await renderHome(); }
+      break;
+    }
+    case 'save-measurements': {
+      const w = +document.getElementById('modal-waist')?.value || null;
+      const h = +document.getElementById('modal-hip')?.value || null;
+      const t = +document.getElementById('modal-thigh')?.value || null;
+      if (w || h || t) { await logMeasurements({ waist: w, hip: h, thigh: t }); closeModal(); await renderHome(); }
+      break;
+    }
+    case 'save-steps': {
+      const s = parseInt(document.getElementById('modal-steps')?.value);
+      if (!isNaN(s) && s >= 0) { await logSteps(s); closeModal(); await renderHome(); }
+      break;
+    }
+
+    // Session player
+    case 'start-set':      state.player?.startSet();      break;
+    case 'complete-set':   state.player?.completeSet();   break;
+    case 'skip-rest':      state.player?.skipRest();      break;
+    case 'jump-exercise':  state.player?.jumpToExercise(parseInt(el.dataset.index)); break;
+    case 'exit-session':
+      if (confirm('Exit this session? Progress won\'t be saved.')) {
+        state.player?.destroy();
+        state.player = null;
+        state.sessionData = null;
+        window.location.hash = '#home';
+      }
+      break;
+    case 'finish-session':
+      state.player?.destroy();
+      state.player = null;
+      state.sessionData = null;
+      window.location.hash = '#home';
+      break;
+
+    // Profile
+    case 'save-health-notes': {
+      const notes = document.getElementById('health-notes-input')?.value || '';
+      await saveProfile({ ...state.profile, healthNotes: notes });
+      state.profile = await getProfile();
+      showToast('Notes saved');
+      break;
+    }
+    case 'toggle-training-day': {
+      const day = parseInt(el.dataset.day);
+      const days = Object.keys(state.profile.plan || {}).map(Number);
+      let newDays;
+      if (days.includes(day)) {
+        newDays = days.filter(d => d !== day);
+      } else {
+        newDays = [...days, day].sort((a, b) => a - b);
+      }
+      if (newDays.length < 1 || newDays.length > 6) break;
+      const newPlan = generateDefaultPlan(newDays);
+      await saveProfile({ ...state.profile, trainingDays: newDays, plan: newPlan });
+      state.profile = await getProfile();
+      await renderProfile();
+      break;
+    }
+    case 'toggle-equipment': {
+      const eq = el.dataset.eq;
+      const equip = [...(state.profile.equipment || [])];
+      const idx = equip.indexOf(eq);
+      if (idx >= 0) equip.splice(idx, 1); else equip.push(eq);
+      await saveProfile({ ...state.profile, equipment: equip });
+      state.profile = await getProfile();
+      break;
+    }
+    case 'request-notifications':
+      await requestNotificationPermission();
+      break;
+    case 'report-prev': {
+      let { year, month } = state.reportDate;
+      month--; if (month < 1) { month = 12; year--; }
+      state.reportDate = { year, month };
+      document.querySelector('.report-month-label').textContent = `${MONTH_NAMES[month - 1]} ${year}`;
+      await loadMonthlyReport();
+      break;
+    }
+    case 'report-next': {
+      let { year, month } = state.reportDate;
+      month++; if (month > 12) { month = 1; year++; }
+      state.reportDate = { year, month };
+      document.querySelector('.report-month-label').textContent = `${MONTH_NAMES[month - 1]} ${year}`;
+      await loadMonthlyReport();
+      break;
+    }
+    case 'export-data': {
+      const json = await exportAllData();
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fittrack-backup-${toDateStr(new Date())}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      break;
+    }
+    case 'import-data': {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const text = await file.text();
+        try {
+          await importAllData(text);
+          state.profile = await getProfile();
+          window.location.hash = '#home';
+          showToast('Data restored!');
+        } catch {
+          showToast('Import failed — check the file format.');
+        }
+      };
+      input.click();
+      break;
+    }
+    case 'reset-app':
+      if (confirm('This will delete ALL your data. Are you sure?')) {
+        await importAllData('{"profile":[],"workouts":[],"weight":[],"measurements":[],"steps":[]}');
+        state.profile = null;
+        renderOnboarding();
+      }
+      break;
+
+    // Modals
+    case 'close-modal': closeModal(); break;
+
+    // Onboarding
+    case 'ob-next': collectObStep(); break;
+    case 'ob-back':
+      state.ob.step = Math.max(0, state.ob.step - 1);
+      renderOnboarding();
+      break;
+  }
+}
+
+// Input event for library search — only re-render the move list, not the whole tab,
+// so the search input keeps focus and cursor position while typing.
+document.addEventListener('input', e => {
+  if (e.target.dataset.action === 'library-search') {
+    state.librarySearch = e.target.value;
+    const moveListEl = document.querySelector('#tab-library .move-list');
+    if (!moveListEl) return;
+
+    const filter = state.libraryFilter;
+    const search = state.librarySearch.toLowerCase();
+    let moves = MOVES;
+    if (filter !== 'all') moves = moves.filter(m => m.equipment.includes(filter));
+    if (search) moves = moves.filter(m =>
+      m.name.toLowerCase().includes(search) ||
+      m.muscles.some(mu => mu.toLowerCase().includes(search)) ||
+      m.category.toLowerCase().includes(search)
+    );
+
+    moveListEl.innerHTML = moves.map(m => `
+      <div class="move-card" data-action="view-move" data-move-id="${m.id}">
+        <div class="move-card-name">${m.name}</div>
+        <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
+        <div class="equip-tags">${m.equipment.map(eq => `<span class="equip-tag">${eq}</span>`).join('')}</div>
+      </div>`).join('') ||
+      '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No exercises match.</div></div>';
+  }
+});
+
+// Onboarding day pill clicks (delegated separately since they're inside #main)
+document.addEventListener('click', e => {
+  const dayBtn = e.target.closest('[data-ob-day]');
+  if (dayBtn) {
+    const day = parseInt(dayBtn.dataset.obDay);
+    const days = state.ob.trainingDays;
+    const idx = days.indexOf(day);
+    if (idx >= 0) { days.splice(idx, 1); } else { days.push(day); }
+    renderOnboarding();
+  }
+  const eqBox = e.target.closest('[data-ob-eq]');
+  if (eqBox && eqBox.tagName === 'INPUT') {
+    const eq = eqBox.dataset.obEq;
+    const equip = state.ob.equipment;
+    const idx = equip.indexOf(eq);
+    if (eqBox.checked && idx < 0) equip.push(eq);
+    else if (!eqBox.checked && idx >= 0) equip.splice(idx, 1);
+  }
+});
+
+function collectObStep() {
+  const ob = state.ob;
+  switch (ob.step) {
+    case 0: ob.name = document.getElementById('ob-name')?.value?.trim() || ''; break;
+    case 2:
+      ob.notifyHour = parseInt(document.getElementById('ob-hour')?.value || '7');
+      ob.notifyMinute = parseInt(document.getElementById('ob-minute')?.value || '0');
+      break;
+    case 4:
+      ob.weight = document.getElementById('ob-weight')?.value || '';
+      ob.waist  = document.getElementById('ob-waist')?.value || '';
+      ob.hip    = document.getElementById('ob-hip')?.value || '';
+      ob.thigh  = document.getElementById('ob-thigh')?.value || '';
+      break;
+    case 5:
+      ob.healthNotes = document.getElementById('ob-notes')?.value?.trim() || '';
+      break;
+  }
+
+  if (ob.step < 5) {
+    ob.step++;
+    renderOnboarding();
+  } else {
+    finishOnboarding();
+  }
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1E293B;color:#F8FAFC;padding:10px 20px;border-radius:99px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.4);white-space:nowrap';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ─── Start ─────────────────────────────────────────────────────────────────
+
+init();

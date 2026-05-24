@@ -1,0 +1,25 @@
+{
+  "name": "FitTrack",
+  "short_name": "FitTrack",
+  "description": "Personal workout tracker and plan generator",
+  "start_url": "/fitness-app/",
+  "scope": "/fitness-app/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#2DD4BF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
