@@ -402,6 +402,23 @@ textarea.form-input {
   gap: 12px;
   margin-bottom: 8px;
 }
+.exit-session-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.exit-session-btn:active { background: var(--danger); }
+
 .session-progress-bar-wrap {
   flex: 1;
   background: var(--surface2);

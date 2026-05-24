@@ -328,7 +328,7 @@ function renderSessionContent(player) {
         <div class="session-progress-bar-fill" style="width:${progPct}%"></div>
       </div>
       <span class="session-progress-label">${ei + 1}/${total}</span>
-      <button class="btn btn-ghost btn-sm" data-action="exit-session">✕</button>
+      <button class="exit-session-btn" data-action="exit-session">✕</button>
     </div>`;
 
   if (player.phase === 'done') {
