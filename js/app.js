@@ -11,6 +11,7 @@ import { renderWeightChart, renderMeasurementsChart, renderStepsChart,
          renderActivityCalendar } from './charts.js';
 import { initNotifications, showInAppNudge, notificationsConfigured,
          requestNotificationPermission, setTrainingDayTags } from './notifications.js';
+import { BACKEND_URL } from './config.js';
 
 // ─── State ─────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,8 @@ const state = {
   librarySearch: '',
   ob: { step: 0, name: '', trainingDays: [1, 3, 5], notifyHour: 7, notifyMinute: 0, equipment: ['bodyweight', 'bands', 'dumbbells'], weight: '', waist: '', hip: '', thigh: '', healthNotes: '' },
   reportDate: { year: new Date().getFullYear(), month: new Date().getMonth() + 1 },
+  chatHistory: [],   // { role, content } pairs sent to API
+  chatMessages: [],  // { role, text } for display
 };
 
 const DAY_NAMES  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -66,6 +69,7 @@ async function route() {
     case '#home':     await renderHome();     break;
     case '#workout':  await renderWorkout();  break;
     case '#session':  renderSessionView();    break;
+    case '#coach':    await renderCoach();    break;
     case '#progress': await renderProgress(); break;
     case '#profile':  await renderProfile();  break;
     default:          await renderHome();
@@ -1064,6 +1068,10 @@ async function handleClick(e) {
       }
       break;
 
+    // Maya / Coach
+    case 'send-chat':          await sendChatMessage(); break;
+    case 'maya-refresh-analysis': await loadMayaAnalysis(); break;
+
     // Modals
     case 'close-modal': closeModal(); break;
 
@@ -1075,6 +1083,13 @@ async function handleClick(e) {
       break;
   }
 }
+
+// Enter key in chat
+document.addEventListener('keydown', async e => {
+  if (e.key === 'Enter' && document.activeElement?.id === 'chat-input') {
+    await sendChatMessage();
+  }
+});
 
 // Input event for library search — only re-render the move list, not the whole tab,
 // so the search input keeps focus and cursor position while typing.
@@ -1159,6 +1174,183 @@ function showToast(msg) {
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2500);
+}
+
+// ─── Coach / Maya View ────────────────────────────────────────────────────
+
+async function renderCoach() {
+  setView(`
+    <div class="view coach-view">
+      <div class="maya-header">
+        <img src="icons/maya.svg" class="maya-avatar-lg" alt="Maya">
+        <div class="maya-header-text">
+          <div class="maya-name">Maya</div>
+          <div class="maya-title">Your Personal Trainer</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" data-action="maya-refresh-analysis" title="Refresh analysis">↻</button>
+      </div>
+
+      <div class="maya-analysis-card card" id="maya-analysis">
+        <div class="maya-analysis-loading">
+          <div class="maya-typing"><span></span><span></span><span></span></div>
+          <div class="text-muted text-sm" style="margin-top:8px">Maya is reading your data…</div>
+        </div>
+      </div>
+
+      <div class="chat-window" id="chat-window">
+        ${state.chatMessages.map(m => chatBubble(m)).join('')}
+        ${state.chatMessages.length === 0 ? `<div class="chat-hint text-muted text-sm text-center" style="padding:20px">Ask Maya anything — your training, form, soreness, what to eat before a workout…</div>` : ''}
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Ask Maya…" autocomplete="off">
+        <button class="btn btn-primary chat-send-btn" data-action="send-chat">↑</button>
+      </div>
+    </div>`, 'Maya');
+
+  // Load analysis
+  await loadMayaAnalysis();
+
+  // Scroll chat to bottom
+  scrollChatToBottom();
+}
+
+async function loadMayaAnalysis() {
+  const el = document.getElementById('maya-analysis');
+  if (!el) return;
+
+  if (!BACKEND_URL) {
+    el.innerHTML = `<div class="text-muted text-sm">Add your Vercel backend URL to <code>js/config.js</code> to activate Maya.</div>`;
+    return;
+  }
+
+  try {
+    const userData = await buildUserData();
+    const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userData }),
+    });
+    const { analysis, error } = await res.json();
+    if (error) throw new Error(error);
+
+    el.innerHTML = `
+      <div class="maya-analysis-text">${analysis.replace(/\n/g, '<br>')}</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="text-muted text-sm">Couldn't load analysis right now. Try again later.</div>`;
+  }
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input?.value?.trim();
+  if (!message) return;
+
+  input.value = '';
+
+  // Add user bubble immediately
+  state.chatMessages.push({ role: 'user', text: message });
+  state.chatHistory.push({ role: 'user', content: message });
+  renderChatMessages();
+  scrollChatToBottom();
+
+  if (!BACKEND_URL) {
+    const fallback = "I'm not connected yet — add the Vercel backend URL to config.js to activate me.";
+    state.chatMessages.push({ role: 'maya', text: fallback });
+    renderChatMessages();
+    return;
+  }
+
+  // Typing indicator
+  addTypingIndicator();
+
+  try {
+    const userData = await buildUserData();
+    const res = await fetch(`${BACKEND_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        history: state.chatHistory.slice(-10), // last 5 exchanges
+        userData,
+      }),
+    });
+    const { reply, error } = await res.json();
+    removeTypingIndicator();
+
+    if (error) throw new Error(error);
+
+    state.chatMessages.push({ role: 'maya', text: reply });
+    state.chatHistory.push({ role: 'assistant', content: reply });
+    renderChatMessages();
+    scrollChatToBottom();
+  } catch (e) {
+    removeTypingIndicator();
+    state.chatMessages.push({ role: 'maya', text: "Something went wrong on my end. Try again in a moment." });
+    renderChatMessages();
+  }
+}
+
+function renderChatMessages() {
+  const win = document.getElementById('chat-window');
+  if (!win) return;
+  win.innerHTML = state.chatMessages.map(m => chatBubble(m)).join('');
+}
+
+function chatBubble({ role, text }) {
+  if (role === 'user') {
+    return `<div class="chat-bubble-wrap user-wrap">
+      <div class="chat-bubble user-bubble">${escHtml(text)}</div>
+    </div>`;
+  }
+  return `<div class="chat-bubble-wrap maya-wrap">
+    <img src="icons/maya.svg" class="chat-maya-avatar" alt="Maya">
+    <div class="chat-bubble maya-bubble">${text.replace(/\n/g, '<br>')}</div>
+  </div>`;
+}
+
+function addTypingIndicator() {
+  const win = document.getElementById('chat-window');
+  if (!win) return;
+  win.insertAdjacentHTML('beforeend', `
+    <div class="chat-bubble-wrap maya-wrap" id="typing-indicator">
+      <img src="icons/maya.svg" class="chat-maya-avatar" alt="Maya">
+      <div class="chat-bubble maya-bubble">
+        <div class="maya-typing"><span></span><span></span><span></span></div>
+      </div>
+    </div>`);
+  scrollChatToBottom();
+}
+
+function removeTypingIndicator() {
+  document.getElementById('typing-indicator')?.remove();
+}
+
+function scrollChatToBottom() {
+  const win = document.getElementById('chat-window');
+  if (win) win.scrollTop = win.scrollHeight;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function buildUserData() {
+  const [weightHistory, measurements, recentWorkouts, stepHistory] = await Promise.all([
+    getWeightHistory(),
+    getMeasurementHistory(),
+    getAllWorkouts(),
+    getStepsHistory(),
+  ]);
+  const streak = await getStreak(state.profile?.plan || {});
+  return {
+    profile: state.profile,
+    weightHistory: weightHistory.slice(-20),
+    measurements: measurements.slice(-10),
+    recentWorkouts: recentWorkouts.slice(-20),
+    stepHistory: stepHistory.slice(-14),
+    streak,
+  };
 }
 
 // ─── Start ─────────────────────────────────────────────────────────────────

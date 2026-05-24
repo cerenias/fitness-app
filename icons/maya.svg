@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#243258"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </radialGradient>
+    <clipPath id="clip"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+
+  <!-- Body / teal athletic top -->
+  <path d="M0 200 L0 168 Q25 148 55 142 L72 137 L100 147 L128 137 L145 142 Q175 148 200 168 L200 200 Z" fill="#2DD4BF"/>
+  <!-- Collar detail -->
+  <path d="M82 147 Q100 158 118 147" stroke="#1BA898" stroke-width="2" fill="none"/>
+
+  <!-- Neck -->
+  <path d="M88 136 Q100 144 112 136 L114 153 Q100 160 86 153 Z" fill="#C07845"/>
+
+  <!-- Ears -->
+  <ellipse cx="62" cy="103" rx="7.5" ry="10" fill="#B06A38"/>
+  <ellipse cx="138" cy="103" rx="7.5" ry="10" fill="#B06A38"/>
+  <!-- Inner ear -->
+  <ellipse cx="62" cy="103" rx="4" ry="6" fill="#C07845"/>
+  <ellipse cx="138" cy="103" rx="4" ry="6" fill="#C07845"/>
+  <!-- Gold hoop earrings -->
+  <circle cx="62" cy="112" r="4" fill="none" stroke="#F4C030" stroke-width="2"/>
+  <circle cx="138" cy="112" r="4" fill="none" stroke="#F4C030" stroke-width="2"/>
+
+  <!-- Face -->
+  <ellipse cx="100" cy="96" rx="39" ry="44" fill="#C07845"/>
+
+  <!-- Hair — sleek, dark, high ponytail -->
+  <!-- Back hair base -->
+  <ellipse cx="100" cy="60" rx="40" ry="22" fill="#1A0C06"/>
+  <!-- Sides of hair -->
+  <path d="M60 75 Q56 98 62 122 Q66 120 68 98 Q70 78 67 68 Z" fill="#1A0C06"/>
+  <path d="M140 75 Q144 98 138 122 Q134 120 132 98 Q130 78 133 68 Z" fill="#1A0C06"/>
+  <!-- Top flat -->
+  <ellipse cx="100" cy="54" rx="36" ry="16" fill="#1A0C06"/>
+  <!-- Ponytail -->
+  <path d="M84 50 Q100 38 116 50" stroke="#1A0C06" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M100 40 Q96 22 102 12 Q110 20 106 40" fill="#1A0C06"/>
+  <!-- Hair tie -->
+  <ellipse cx="100" cy="41" rx="8" ry="4" fill="#2DD4BF"/>
+
+  <!-- Eyebrows — strong, determined -->
+  <path d="M70 84 Q80 79 91 82" stroke="#1A0C06" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+  <path d="M109 82 Q120 79 130 84" stroke="#1A0C06" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+
+  <!-- Eye whites -->
+  <ellipse cx="81" cy="96" rx="10" ry="7.5" fill="white"/>
+  <ellipse cx="119" cy="96" rx="10" ry="7.5" fill="white"/>
+  <!-- Upper eyelid line -->
+  <path d="M71 93 Q81 88 91 93" stroke="#1A0C06" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M109 93 Q119 88 129 93" stroke="#1A0C06" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Irises -->
+  <circle cx="81" cy="97" r="5.8" fill="#3D1A08"/>
+  <circle cx="119" cy="97" r="5.8" fill="#3D1A08"/>
+  <!-- Pupils -->
+  <circle cx="81" cy="97" r="2.8" fill="#0D0503"/>
+  <circle cx="119" cy="97" r="2.8" fill="#0D0503"/>
+  <!-- Highlights -->
+  <circle cx="83" cy="94" r="1.8" fill="white"/>
+  <circle cx="121" cy="94" r="1.8" fill="white"/>
+
+  <!-- Nose — subtle -->
+  <path d="M97 110 Q100 117 103 110" stroke="#9A5A25" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="96.5" cy="116" rx="2.5" ry="1.5" fill="#9A5A25" opacity="0.45"/>
+  <ellipse cx="103.5" cy="116" rx="2.5" ry="1.5" fill="#9A5A25" opacity="0.45"/>
+
+  <!-- Lips — confident, slight smile (not a grin) -->
+  <path d="M87 124 Q93 120 100 122 Q107 120 113 124 Q106 121 100 122.5 Q94 121 87 124 Z" fill="#B8504A"/>
+  <path d="M87 124 Q100 131 113 124 Q106 130 100 131 Q94 130 87 124 Z" fill="#CC6055"/>
+  <path d="M87 124 Q100 122 113 124" stroke="#8B3830" stroke-width="1" fill="none"/>
+  <!-- Subtle smile corners -->
+  <path d="M87 124 Q84 127 86 130" stroke="#9A5530" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <path d="M113 124 Q116 127 114 130" stroke="#9A5530" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Collarbone hint -->
+  <path d="M82 148 Q91 144 100 145 Q109 144 118 148" stroke="#B06A38" stroke-width="1.5" fill="none" opacity="0.5"/>
+</svg>

@@ -932,6 +932,166 @@ textarea.form-input {
 .empty-icon { font-size: 48px; opacity: 0.5; }
 .empty-text { font-size: 15px; line-height: 1.6; }
 
+/* ─── Maya / Coach View ──────────────────────────────────────────────────── */
+.coach-view {
+  padding: 0;
+  gap: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.maya-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.maya-avatar-lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  flex-shrink: 0;
+}
+
+.maya-name { font-size: 18px; font-weight: 800; }
+.maya-title { font-size: 12px; color: var(--primary); font-weight: 600; }
+.maya-header-text { flex: 1; }
+
+.maya-analysis-card {
+  margin: 12px 16px 0;
+  flex-shrink: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  border-left: 3px solid var(--primary);
+}
+
+.maya-analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.maya-analysis-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* Maya nav icon active state */
+.nav-item.active .maya-nav-icon {
+  border-color: var(--primary) !important;
+}
+
+/* Chat window */
+.chat-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-bubble-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.user-wrap { justify-content: flex-end; }
+.maya-wrap { justify-content: flex-start; }
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.user-bubble {
+  background: var(--primary);
+  color: var(--bg);
+  border-bottom-right-radius: 4px;
+}
+
+.maya-bubble {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-maya-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary);
+  flex-shrink: 0;
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  color: var(--text);
+  padding: 10px 16px;
+  outline: none;
+  font-size: 15px;
+}
+.chat-input:focus { border-color: var(--primary); }
+
+.chat-send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Typing dots animation */
+.maya-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+.maya-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: typingDot 1.2s infinite ease-in-out;
+}
+.maya-typing span:nth-child(2) { animation-delay: 0.2s; }
+.maya-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: scale(0.7); opacity: 0.4; }
+  30% { transform: scale(1); opacity: 1; }
+}
+
+.chat-hint { padding: 20px; }
+
 /* ─── Utilities ──────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
 .text-muted { color: var(--text-muted); }
