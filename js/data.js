@@ -307,6 +307,19 @@ export const SESSION_TEMPLATES = {
       { moveId: 'side-plank',        sets: 3, reps: null, duration: 20, rest: 30 },
     ],
   },
+  M: {
+    name: 'Mobility & Flexibility',
+    focus: 'Posture, flexibility, recovery',
+    exercises: [
+      { moveId: 'bird-dog',          sets: 3, reps: 10, duration: null, rest: 30 },
+      { moveId: 'dead-bug',          sets: 3, reps: 10, duration: null, rest: 30 },
+      { moveId: 'superman',          sets: 3, reps: null, duration: 30, rest: 30 },
+      { moveId: 'glute-bridge',      sets: 3, reps: 15, duration: null, rest: 30 },
+      { moveId: 'side-plank',        sets: 3, reps: null, duration: 25, rest: 30 },
+      { moveId: 'band-pull-apart',   sets: 3, reps: 15, duration: null, rest: 30 },
+      { moveId: 'banded-face-pull',  sets: 3, reps: 15, duration: null, rest: 30 },
+    ],
+  },
 };
 
 export const ALTERNATIVE_ACTIVITIES = [

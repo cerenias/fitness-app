@@ -33,6 +33,27 @@ const DAY_NAMES  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DAY_SHORT  = ['S','M','T','W','T','F','S'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+// ─── Chat persistence ───────────────────────────────────────────────────────
+
+const CHAT_KEY = 'fittrack_chat_v1';
+
+function saveChatToStorage() {
+  try {
+    localStorage.setItem(CHAT_KEY, JSON.stringify({
+      messages: state.chatMessages,
+      history: state.chatHistory,
+    }));
+  } catch {}
+}
+
+function loadChatFromStorage() {
+  try {
+    const data = JSON.parse(localStorage.getItem(CHAT_KEY) || '{}');
+    state.chatMessages = data.messages || [];
+    state.chatHistory  = data.history  || [];
+  } catch {}
+}
+
 // ─── Bootstrap ─────────────────────────────────────────────────────────────
 
 async function init() {
@@ -41,6 +62,7 @@ async function init() {
   }
 
   initNotifications();
+  loadChatFromStorage();
 
   document.getElementById('app').addEventListener('click', handleClick);
   window.addEventListener('hashchange', route);
@@ -1071,7 +1093,29 @@ async function handleClick(e) {
 
     // Maya / Coach
     case 'send-chat':          await sendChatMessage(); break;
-    case 'maya-refresh-analysis': await loadMayaAnalysis(); break;
+    case 'maya-refresh-analysis': {
+      addTypingIndicator();
+      try {
+        const userData = await buildUserData();
+        const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userData }),
+        });
+        const { analysis, error } = await res.json();
+        removeTypingIndicator();
+        if (error) throw new Error(error);
+        state.chatMessages.push({ role: 'maya', text: analysis });
+        state.chatHistory.push({ role: 'assistant', content: analysis });
+        renderChatMessages();
+        scrollChatToBottom();
+      } catch {
+        removeTypingIndicator();
+        state.chatMessages.push({ role: 'maya', text: "Couldn't refresh right now. Try again in a moment." });
+        renderChatMessages();
+      }
+      break;
+    }
 
     // Modals
     case 'close-modal': closeModal(); break;
@@ -1192,16 +1236,15 @@ async function renderCoach() {
         <button class="btn btn-ghost btn-sm" data-action="maya-refresh-analysis" title="Refresh analysis">↻</button>
       </div>
 
-      <div class="maya-analysis-card card" id="maya-analysis">
-        <div class="maya-analysis-loading">
-          <div class="maya-typing"><span></span><span></span><span></span></div>
-          <div class="text-muted text-sm" style="margin-top:8px">Maya is reading your data…</div>
-        </div>
-      </div>
-
       <div class="chat-window" id="chat-window">
         ${state.chatMessages.map(m => chatBubble(m)).join('')}
-        ${state.chatMessages.length === 0 ? `<div class="chat-hint text-muted text-sm text-center" style="padding:20px">Ask Maya anything — your training, form, soreness, what to eat before a workout…</div>` : ''}
+        ${state.chatMessages.length === 0 ? `
+          <div class="chat-bubble-wrap maya-wrap" id="analysis-bubble">
+            <img src="icons/maya.svg" class="chat-maya-avatar" alt="Maya">
+            <div class="chat-bubble maya-bubble">
+              <div class="maya-typing"><span></span><span></span><span></span></div>
+            </div>
+          </div>` : ''}
       </div>
 
       <div class="chat-input-bar">
@@ -1210,19 +1253,21 @@ async function renderCoach() {
       </div>
     </div>`, 'Maya');
 
-  // Load analysis
-  await loadMayaAnalysis();
+  // Load analysis into chat if no messages yet
+  if (state.chatMessages.length === 0) await loadMayaAnalysis();
 
-  // Scroll chat to bottom
   scrollChatToBottom();
 }
 
 async function loadMayaAnalysis() {
-  const el = document.getElementById('maya-analysis');
-  if (!el) return;
+  const analysisBubble = document.getElementById('analysis-bubble');
 
   if (!BACKEND_URL) {
-    el.innerHTML = `<div class="text-muted text-sm">Add your Vercel backend URL to <code>js/config.js</code> to activate Maya.</div>`;
+    const fallback = "Hey! I'm Maya, your personal trainer. I'm not fully connected yet — once the backend is set up I'll be able to analyse your progress. For now, feel free to ask me anything! 💪";
+    if (analysisBubble) analysisBubble.remove();
+    state.chatMessages.push({ role: 'maya', text: fallback });
+    state.chatHistory.push({ role: 'assistant', content: fallback });
+    renderChatMessages();
     return;
   }
 
@@ -1236,10 +1281,16 @@ async function loadMayaAnalysis() {
     const { analysis, error } = await res.json();
     if (error) throw new Error(error);
 
-    el.innerHTML = `
-      <div class="maya-analysis-text">${analysis.replace(/\n/g, '<br>')}</div>`;
+    if (analysisBubble) analysisBubble.remove();
+    state.chatMessages.push({ role: 'maya', text: analysis });
+    state.chatHistory.push({ role: 'assistant', content: analysis });
+    saveChatToStorage();
+    renderChatMessages();
+    scrollChatToBottom();
   } catch (e) {
-    el.innerHTML = `<div class="text-muted text-sm">Couldn't load analysis right now. Try again later.</div>`;
+    if (analysisBubble) analysisBubble.remove();
+    state.chatMessages.push({ role: 'maya', text: "Hey! I'm Maya. I had trouble loading your analysis right now — but I'm here to chat. What's on your mind? 💪" });
+    renderChatMessages();
   }
 }
 
@@ -1253,6 +1304,7 @@ async function sendChatMessage() {
   // Add user bubble immediately
   state.chatMessages.push({ role: 'user', text: message });
   state.chatHistory.push({ role: 'user', content: message });
+  saveChatToStorage();
   renderChatMessages();
   scrollChatToBottom();
 
@@ -1277,15 +1329,18 @@ async function sendChatMessage() {
         userData,
       }),
     });
-    const { reply, error } = await res.json();
+    const { reply, action, error } = await res.json();
     removeTypingIndicator();
 
     if (error) throw new Error(error);
 
     state.chatMessages.push({ role: 'maya', text: reply });
     state.chatHistory.push({ role: 'assistant', content: reply });
+    saveChatToStorage();
     renderChatMessages();
     scrollChatToBottom();
+
+    if (action) await applyPlanAction(action);
   } catch (e) {
     removeTypingIndicator();
     state.chatMessages.push({ role: 'maya', text: "Something went wrong on my end. Try again in a moment." });
@@ -1335,6 +1390,25 @@ function scrollChatToBottom() {
 
 function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function applyPlanAction(action) {
+  if (!state.profile || !action?.type) return;
+  const plan = { ...(state.profile.plan || {}) };
+
+  if (action.type === 'set_session') {
+    const template = SESSION_TEMPLATES[action.sessionKey];
+    if (!template) return;
+    plan[action.day] = { ...template, sessionKey: action.sessionKey };
+  } else if (action.type === 'set_rest') {
+    delete plan[action.day];
+  } else {
+    return;
+  }
+
+  await saveProfile({ ...state.profile, plan });
+  state.profile = await getProfile();
+  showToast('Schedule updated ✓');
 }
 
 async function buildUserData() {
