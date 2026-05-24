@@ -324,6 +324,7 @@ function renderSessionContent(player) {
     container.innerHTML = header + `
       <div class="phase-intro">
         <div class="exercise-number">Exercise ${ei + 1} of ${total}</div>
+        <div style="font-size:56px;text-align:center;line-height:1.2">${move?.icon || '💪'}</div>
         <div class="exercise-title">${move?.name || ''}</div>
         <div class="muscles-tags">${(move?.muscles || []).map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
         <div class="sets-reps-row">
@@ -343,6 +344,7 @@ function renderSessionContent(player) {
           </div>
         </div>
         <div class="instructions-box">${move?.instructions || ''}</div>
+        ${move?.demo ? `<a href="${move.demo}" target="_blank" rel="noopener" class="btn btn-ghost btn-full btn-sm" style="text-align:center">▶ Watch demo on YouTube</a>` : ''}
         <button class="btn btn-primary btn-full btn-xl" data-action="start-set">Start Set</button>
         <div class="exercise-mini-nav">${dotsHtml}</div>
       </div>`;
@@ -826,14 +828,13 @@ function showLogSteps() {
   showModal(`
     <div class="modal-handle"></div>
     <div class="modal-title">Log Steps</div>
-    <div class="text-muted text-sm" style="margin-bottom:8px">Check your iPhone Health app for today's step count.</div>
+    <div class="text-muted text-sm" style="margin-bottom:12px">Open your iPhone <strong>Health</strong> app → Steps → check today's count, then enter it below.</div>
     <div class="form-group">
       <label class="form-label">Steps today</label>
-      <input type="number" class="form-input" id="modal-steps" placeholder="7500" min="0" max="100000">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input" id="modal-steps" placeholder="7500" min="0" max="100000" style="font-size:24px;text-align:center;padding:16px">
     </div>
-    <button class="btn btn-primary btn-full" data-action="save-steps">Save</button>
+    <button class="btn btn-primary btn-full btn-xl" data-action="save-steps" style="margin-top:8px">Save</button>
     <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
-  setTimeout(() => document.getElementById('modal-steps')?.focus(), 100);
 }
 
 function showSwapSession() {
@@ -855,15 +856,17 @@ function showMoveDetail(moveId) {
   if (!move) return;
   showModal(`
     <div class="modal-handle"></div>
-    <div class="modal-title">${move.name}</div>
-    <div class="muscles-tags">${move.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
-    <div class="equip-tags" style="margin-top:8px">${move.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
+    <div style="font-size:48px;text-align:center;margin-bottom:4px">${move.icon || '💪'}</div>
+    <div class="modal-title" style="text-align:center">${move.name}</div>
+    <div class="muscles-tags" style="justify-content:center">${move.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
+    <div class="equip-tags" style="margin-top:8px;justify-content:center">${move.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
     <div class="instructions-box" style="margin-top:12px">${move.instructions}</div>
     <div class="flex gap-8" style="margin-top:4px">
       <div class="stat-box"><div class="stat-value">${move.defaultSets}</div><div class="stat-label">Sets</div></div>
       <div class="stat-box"><div class="stat-value">${move.defaultDuration ? move.defaultDuration + 's' : move.defaultReps}</div><div class="stat-label">${move.unit === 'each' ? 'Each Side' : move.defaultDuration ? 'Seconds' : 'Reps'}</div></div>
       <div class="stat-box"><div class="stat-value">${move.defaultRest}s</div><div class="stat-label">Rest</div></div>
     </div>
+    ${move.demo ? `<a href="${move.demo}" target="_blank" rel="noopener" class="btn btn-accent btn-full" style="text-align:center">▶ Watch Demo on YouTube</a>` : ''}
     <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Close</button>`);
 }
 
@@ -939,7 +942,14 @@ async function handleClick(e) {
     }
     case 'save-steps': {
       const s = parseInt(document.getElementById('modal-steps')?.value);
-      if (!isNaN(s) && s >= 0) { await logSteps(s); closeModal(); await renderHome(); }
+      if (isNaN(s) || s < 0) {
+        document.getElementById('modal-steps').style.borderColor = 'var(--danger)';
+        document.getElementById('modal-steps').placeholder = 'Enter a number first';
+        break;
+      }
+      await logSteps(s);
+      closeModal();
+      await renderHome();
       break;
     }
 
