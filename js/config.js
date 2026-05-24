@@ -14,3 +14,7 @@ export const BASE_PATH = '/fitness-app/';
 // Paste your Vercel deployment URL here after deploying fitness-backend.
 // Example: 'https://fitness-backend-abc123.vercel.app'
 export const BACKEND_URL = 'https://fitness-backend-hazel.vercel.app';
+
+// ─── App secret ────────────────────────────────────────────────────────────
+// Must match APP_SECRET environment variable in Vercel.
+export const APP_SECRET = 'fittrack-maya-secret-2026';

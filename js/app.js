@@ -11,7 +11,7 @@ import { renderWeightChart, renderMeasurementsChart, renderStepsChart,
          renderActivityCalendar } from './charts.js';
 import { initNotifications, showInAppNudge, notificationsConfigured,
          requestNotificationPermission, setTrainingDayTags } from './notifications.js';
-import { BACKEND_URL } from './config.js';
+import { BACKEND_URL, APP_SECRET } from './config.js';
 
 // ─── State ─────────────────────────────────────────────────────────────────
 
@@ -1126,7 +1126,7 @@ async function handleClick(e) {
         const userData = await buildUserData();
         const res = await fetch(`${BACKEND_URL}/api/analyze`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-app-secret': APP_SECRET },
           body: JSON.stringify({ userData }),
         });
         const { analysis, error } = await res.json();
@@ -1302,7 +1302,7 @@ async function loadMayaAnalysis() {
     const userData = await buildUserData();
     const res = await fetch(`${BACKEND_URL}/api/analyze`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-app-secret': APP_SECRET },
       body: JSON.stringify({ userData }),
     });
     const { analysis, error } = await res.json();
@@ -1349,10 +1349,10 @@ async function sendChatMessage() {
     const userData = await buildUserData();
     const res = await fetch(`${BACKEND_URL}/api/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-app-secret': APP_SECRET },
       body: JSON.stringify({
         message,
-        history: state.chatHistory.slice(-10), // last 5 exchanges
+        history: state.chatHistory.slice(-10),
         userData,
       }),
     });
