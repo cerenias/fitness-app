@@ -8,7 +8,7 @@ export const MOVES = [
     muscles: ['Quads', 'Glutes', 'Hamstrings'],
     instructions: 'Stand feet shoulder-width apart, toes slightly out. Sit back and down keeping your chest tall and knees tracking over your toes. Drive through your heels to stand.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=bodyweight+squat+proper+form+tutorial',
+    videoId: 'P-yaD24bUE8', demo: 'https://www.youtube.com/watch?v=P-yaD24bUE8',
   },
   {
     id: 'goblet-squat',
@@ -18,7 +18,7 @@ export const MOVES = [
     muscles: ['Quads', 'Glutes', 'Core'],
     instructions: 'Hold a dumbbell vertically at chest height. Feet shoulder-width, toes out. Squat deep, elbows tracking inside your knees. Drive up through your heels.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=goblet+squat+dumbbell+form+tutorial',
+    videoId: 'MeIiIdhvXT4', demo: 'https://www.youtube.com/watch?v=MeIiIdhvXT4',
   },
   {
     id: 'reverse-lunge',
@@ -28,7 +28,7 @@ export const MOVES = [
     muscles: ['Quads', 'Glutes', 'Hamstrings'],
     instructions: 'Stand tall, hands on hips. Step one foot back and lower your back knee toward the floor without touching it. Push through the front foot to return. Alternate legs.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'each',
-    demo: 'https://www.youtube.com/results?search_query=reverse+lunge+proper+form+tutorial',
+    videoId: 'MzRrLIkaAY0', demo: 'https://www.youtube.com/watch?v=MzRrLIkaAY0',
   },
   {
     id: 'sumo-squat',
@@ -38,7 +38,7 @@ export const MOVES = [
     muscles: ['Inner Thighs', 'Glutes', 'Quads'],
     instructions: 'Take a wide stance, toes pointing out 45°. Lower straight down keeping your torso upright. Squeeze your glutes and inner thighs as you rise.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=sumo+squat+form+tutorial',
+    videoId: 'kjlfpqXnyL8', demo: 'https://www.youtube.com/watch?v=kjlfpqXnyL8',
   },
   {
     id: 'rdl',
@@ -48,7 +48,7 @@ export const MOVES = [
     muscles: ['Hamstrings', 'Glutes', 'Lower Back'],
     instructions: 'Hold dumbbells in front of thighs. Hinge at the hips, pushing them back while lowering the weights along your legs. Keep a soft knee and flat back. Drive hips forward to return.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+form+tutorial',
+    videoId: '_oyxCn2iSjU', demo: 'https://www.youtube.com/watch?v=_oyxCn2iSjU',
   },
   // ─── Glutes ──────────────────────────────────────────────────────────────
   {
@@ -59,7 +59,7 @@ export const MOVES = [
     muscles: ['Glutes', 'Hamstrings', 'Core'],
     instructions: 'Lie on your back, knees bent, feet flat. Press through your heels and squeeze your glutes to raise your hips until your body forms a straight line. Hold briefly, then lower slowly.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=glute+bridge+proper+form+tutorial',
+    videoId: 'LFvZ-d4rDac', demo: 'https://www.youtube.com/watch?v=LFvZ-d4rDac',
   },
   {
     id: 'hip-thrust',
@@ -69,7 +69,7 @@ export const MOVES = [
     muscles: ['Glutes', 'Hamstrings'],
     instructions: 'Sit with your upper back against a sofa or bench, knees bent, feet flat. Drive through your heels, squeeze your glutes hard at the top, forming a straight line from knees to shoulders. Lower with control.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=hip+thrust+bodyweight+at+home+tutorial',
+    videoId: 'xDmFkJxPzeM', demo: 'https://www.youtube.com/watch?v=xDmFkJxPzeM',
   },
   {
     id: 'banded-lateral-walk',
@@ -79,7 +79,7 @@ export const MOVES = [
     muscles: ['Glutes', 'Hip Abductors'],
     instructions: 'Place a resistance band just above your knees. Slightly bend your knees, hips back. Step sideways keeping tension in the band throughout. Take 10 steps each direction.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
-    demo: 'https://www.youtube.com/results?search_query=banded+lateral+walk+exercise+tutorial',
+    videoId: 'y_bqFDQZSHQ', demo: 'https://www.youtube.com/watch?v=y_bqFDQZSHQ',
   },
   // ─── Chest / Push ────────────────────────────────────────────────────────
   {
@@ -90,7 +90,7 @@ export const MOVES = [
     muscles: ['Chest', 'Shoulders', 'Triceps'],
     instructions: 'Hands slightly wider than shoulders, body in a straight line. Lower your chest to just above the floor, elbows at 45° to your body. Push back up. Drop to knees to scale.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=perfect+push+up+form+tutorial',
+    videoId: 'Zi6c09DRGxk', demo: 'https://www.youtube.com/watch?v=Zi6c09DRGxk',
   },
   {
     id: 'pike-push-up',
@@ -100,7 +100,7 @@ export const MOVES = [
     muscles: ['Shoulders', 'Triceps', 'Upper Back'],
     instructions: 'Start in a downward dog position, hips high. Bend elbows to lower your head toward the floor, then press back up. Keep your hips elevated throughout.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=pike+push+up+tutorial+form',
+    videoId: 'pHR5yG6xBps', demo: 'https://www.youtube.com/watch?v=pHR5yG6xBps',
   },
   {
     id: 'db-shoulder-press',
@@ -110,7 +110,7 @@ export const MOVES = [
     muscles: ['Shoulders', 'Triceps', 'Upper Chest'],
     instructions: 'Hold dumbbells at shoulder height, palms facing forward. Press straight up until arms are extended. Lower with control. Keep your core tight and avoid arching your lower back.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+seated+form',
+    videoId: '_RlRDWO2jfg', demo: 'https://www.youtube.com/watch?v=_RlRDWO2jfg',
   },
   {
     id: 'db-lateral-raise',
@@ -120,7 +120,7 @@ export const MOVES = [
     muscles: ['Side Delts'],
     instructions: 'Hold light dumbbells at your sides. Raise arms out to the side to shoulder height with a slight bend in the elbow. Lead with your elbows, not your wrists. Lower slowly.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=lateral+raise+proper+form+no+cheating',
+    videoId: 'NZsldrqqca8', demo: 'https://www.youtube.com/watch?v=NZsldrqqca8',
   },
   // ─── Back ────────────────────────────────────────────────────────────────
   {
@@ -131,7 +131,7 @@ export const MOVES = [
     muscles: ['Upper Back', 'Lats', 'Biceps'],
     instructions: 'Hinge forward at the hips, back flat, dumbbells hanging. Pull elbows back and up, squeezing your shoulder blades together. Lower with control. Keep your core braced.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=dumbbell+bent+over+row+proper+form',
+    videoId: '6TSP1TRMUzs', demo: 'https://www.youtube.com/watch?v=6TSP1TRMUzs',
   },
   {
     id: 'banded-row',
@@ -141,7 +141,7 @@ export const MOVES = [
     muscles: ['Upper Back', 'Rhomboids', 'Biceps'],
     instructions: 'Anchor a band at waist height or sit with legs straight and band around feet. Pull the band to your torso, squeezing shoulder blades together. Control the return.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=resistance+band+row+exercise+tutorial',
+    videoId: 'eOKwM5nHzj4', demo: 'https://www.youtube.com/watch?v=eOKwM5nHzj4',
   },
   {
     id: 'band-pull-apart',
@@ -151,7 +151,7 @@ export const MOVES = [
     muscles: ['Upper Back', 'Rear Delts', 'Rhomboids'],
     instructions: 'Hold a resistance band at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together, keeping arms straight. Slowly return. Great for posture.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=band+pull+apart+posture+exercise',
+    videoId: 'smSSXITNpCI', demo: 'https://www.youtube.com/watch?v=smSSXITNpCI',
   },
   {
     id: 'banded-face-pull',
@@ -161,7 +161,7 @@ export const MOVES = [
     muscles: ['Rear Delts', 'Rotator Cuff', 'Upper Back'],
     instructions: 'Anchor a band at face height. Pull the band toward your face, elbows high and flaring out, hands ending by your ears. Squeeze at the end position. Excellent for posture and shoulder health.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=face+pull+resistance+band+posture+tutorial',
+    videoId: 'uX5W2kynMIo', demo: 'https://www.youtube.com/watch?v=uX5W2kynMIo',
   },
   {
     id: 'superman',
@@ -171,7 +171,7 @@ export const MOVES = [
     muscles: ['Lower Back', 'Glutes', 'Upper Back'],
     instructions: 'Lie face down, arms extended overhead. Simultaneously lift your arms, chest, and legs off the floor. Hold briefly, then lower. Keep your neck neutral — look at the floor.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=superman+exercise+lower+back+tutorial',
+    videoId: 'cc71nVQus4Y', demo: 'https://www.youtube.com/watch?v=cc71nVQus4Y',
   },
   // ─── Arms ────────────────────────────────────────────────────────────────
   {
@@ -182,7 +182,7 @@ export const MOVES = [
     muscles: ['Biceps'],
     instructions: 'Hold dumbbells at sides, palms forward. Curl both up to shoulder height, keeping elbows at your sides. Squeeze at the top, then lower slowly. Avoid swinging.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=dumbbell+bicep+curl+proper+form',
+    videoId: 'KS-1_r9K4XA', demo: 'https://www.youtube.com/watch?v=KS-1_r9K4XA',
   },
   {
     id: 'db-tricep-ext',
@@ -192,7 +192,7 @@ export const MOVES = [
     muscles: ['Triceps'],
     instructions: 'Hold one dumbbell with both hands overhead, arms extended. Lower behind your head by bending at the elbows. Press back up. Keep elbows pointing forward and close to your head.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=overhead+tricep+extension+dumbbell+tutorial',
+    videoId: 'popGXI-qs98', demo: 'https://www.youtube.com/watch?v=popGXI-qs98',
   },
   {
     id: 'banded-bicep-curl',
@@ -202,7 +202,7 @@ export const MOVES = [
     muscles: ['Biceps'],
     instructions: 'Stand on a resistance band, holding both ends. Curl both hands up toward your shoulders, keeping elbows at your sides. Lower with control. Constant tension from the band.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=resistance+band+bicep+curl+tutorial',
+    videoId: 'Pe8B2_3sMkw', demo: 'https://www.youtube.com/watch?v=Pe8B2_3sMkw',
   },
   // ─── Core ────────────────────────────────────────────────────────────────
   {
@@ -213,7 +213,7 @@ export const MOVES = [
     muscles: ['Core', 'Shoulders', 'Glutes'],
     instructions: 'Forearms on the floor, elbows under shoulders. Body forms a straight line from head to heels. Breathe steadily. Don\'t let hips sag or rise — keep your glutes lightly squeezed.',
     defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
-    demo: 'https://www.youtube.com/results?search_query=plank+proper+form+tutorial+core',
+    videoId: 'wrRIs2Dk_8U', demo: 'https://www.youtube.com/watch?v=wrRIs2Dk_8U',
   },
   {
     id: 'side-plank',
@@ -223,7 +223,7 @@ export const MOVES = [
     muscles: ['Obliques', 'Core', 'Hip Abductors'],
     instructions: 'Lie on your side, forearm on the floor. Stack your feet and lift your hips to form a straight line. Keep your top arm at your side or reach toward the ceiling. Hold steady.',
     defaultSets: 3, defaultReps: null, defaultDuration: 20, defaultRest: 30, unit: 'seconds',
-    demo: 'https://www.youtube.com/results?search_query=side+plank+proper+form+tutorial',
+    videoId: 'Ujf5ELfqI7o', demo: 'https://www.youtube.com/watch?v=Ujf5ELfqI7o',
   },
   {
     id: 'dead-bug',
@@ -233,7 +233,7 @@ export const MOVES = [
     muscles: ['Deep Core', 'Lower Back'],
     instructions: 'Lie on your back, arms toward ceiling, knees at 90°. Lower your right arm and left leg toward the floor, exhaling and pressing your lower back down. Return and repeat on the other side. Move slowly and with control. Great for back health.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
-    demo: 'https://www.youtube.com/results?search_query=dead+bug+exercise+core+back+pain+tutorial',
+    videoId: 'bxn9FBrt4-A', demo: 'https://www.youtube.com/watch?v=bxn9FBrt4-A',
   },
   {
     id: 'bird-dog',
@@ -243,7 +243,7 @@ export const MOVES = [
     muscles: ['Core', 'Lower Back', 'Glutes'],
     instructions: 'On hands and knees, wrists under shoulders, knees under hips. Extend your right arm and left leg simultaneously, keeping hips level. Hold 2 seconds. Return and repeat on the other side. Essential for back stability.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
-    demo: 'https://www.youtube.com/results?search_query=bird+dog+exercise+back+stability+tutorial',
+    videoId: 'ZdAHe9_HeEw', demo: 'https://www.youtube.com/watch?v=ZdAHe9_HeEw',
   },
   // ─── Full Body / Cardio ──────────────────────────────────────────────────
   {
@@ -254,7 +254,7 @@ export const MOVES = [
     muscles: ['Core', 'Shoulders', 'Hip Flexors'],
     instructions: 'Start in a high plank. Drive one knee toward your chest, then quickly switch legs in a running motion. Keep hips level and core tight. Breathe continuously.',
     defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
-    demo: 'https://www.youtube.com/results?search_query=mountain+climber+exercise+form+tutorial',
+    videoId: 'cnyTQDSE884', demo: 'https://www.youtube.com/watch?v=cnyTQDSE884',
   },
   {
     id: 'burpee',
@@ -264,7 +264,7 @@ export const MOVES = [
     muscles: ['Full Body'],
     instructions: 'From standing, crouch and place hands on floor. Jump feet back to plank. Do a push-up (optional). Jump feet forward, then explosively jump up with arms overhead. Scale by stepping instead of jumping.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 60, unit: 'reps',
-    demo: 'https://www.youtube.com/results?search_query=burpee+proper+form+beginner+tutorial',
+    videoId: 'mUYJqe_sJFE', demo: 'https://www.youtube.com/watch?v=mUYJqe_sJFE',
   },
 ];
 
