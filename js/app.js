@@ -265,12 +265,9 @@ function renderLibraryTab() {
 
   const cards = moves.map(m => `
     <div class="move-card" data-action="view-move" data-move-id="${m.id}">
-      ${m.videoId ? `<div class="move-card-thumb"><img src="https://img.youtube.com/vi/${m.videoId}/mqdefault.jpg" alt="${m.name}" loading="lazy"><div class="move-card-play">▶</div></div>` : ''}
-      <div class="move-card-info">
-        <div class="move-card-name">${m.name}</div>
-        <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
-        <div class="equip-tags">${m.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
-      </div>
+      <div class="move-card-name">${m.name}</div>
+      <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
+      <div class="equip-tags">${m.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
     </div>`).join('');
 
   return `
@@ -1194,12 +1191,9 @@ document.addEventListener('input', e => {
 
     moveListEl.innerHTML = moves.map(m => `
       <div class="move-card" data-action="view-move" data-move-id="${m.id}">
-        ${m.videoId ? `<div class="move-card-thumb"><img src="https://img.youtube.com/vi/${m.videoId}/mqdefault.jpg" alt="${m.name}" loading="lazy"><div class="move-card-play">▶</div></div>` : ''}
-        <div class="move-card-info">
           <div class="move-card-name">${m.name}</div>
           <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
           <div class="equip-tags">${m.equipment.map(eq => `<span class="equip-tag">${eq}</span>`).join('')}</div>
-        </div>
       </div>`).join('') ||
       '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No exercises match.</div></div>';
   }
