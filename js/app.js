@@ -242,7 +242,7 @@ function renderPlanTab(plan) {
           <div class="day-row-session">${session.name}</div>
           <div class="day-row-focus">${session.focus}</div>
         </div>
-        <div class="day-row-tag">${session.sessionKey}</div>
+        <button class="btn btn-primary btn-sm" data-action="start-any-session" data-day="${i}" style="flex-shrink:0">▶ Start</button>
       </div>
       <div class="day-exercises">${exItems}</div>
     </div>`;
@@ -955,6 +955,14 @@ async function handleClick(e) {
     // Home actions
     case 'start-session': {
       const session = getTodaySession(state.profile.plan || {});
+      if (!session) break;
+      state.sessionData = resolveSession(session);
+      window.location.hash = '#session';
+      break;
+    }
+    case 'start-any-session': {
+      const day = parseInt(el.dataset.day);
+      const session = state.profile.plan?.[day];
       if (!session) break;
       state.sessionData = resolveSession(session);
       window.location.hash = '#session';
