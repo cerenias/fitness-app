@@ -402,6 +402,32 @@ textarea.form-input {
   gap: 12px;
   margin-bottom: 8px;
 }
+.swap-move-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.swap-move-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface2);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  width: 100%;
+}
+.swap-move-item:active { background: var(--primary-dim); }
+.swap-move-icon { font-size: 24px; flex-shrink: 0; }
+.swap-move-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.swap-move-muscles { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
 .exit-session-btn {
   flex-shrink: 0;
   width: 36px;

@@ -374,6 +374,7 @@ function renderSessionContent(player) {
         <div class="instructions-box">${move?.instructions || ''}</div>
         ${move?.demo ? `<a href="${move.demo}" target="_blank" rel="noopener" class="btn btn-ghost btn-full btn-sm" style="text-align:center">▶ Watch demo on YouTube</a>` : ''}
         <button class="btn btn-primary btn-full btn-xl" data-action="start-set">Start Set</button>
+        <button class="btn btn-ghost btn-full btn-sm" data-action="swap-exercise" data-index="${ei}">↔ Swap exercise</button>
         <div class="exercise-mini-nav">${dotsHtml}</div>
       </div>`;
     return;
@@ -906,6 +907,28 @@ function showSwapSession() {
     <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
 }
 
+function showSwapExercise(index) {
+  const equipment = state.profile?.equipment || [];
+  const moves = MOVES.filter(m => m.equipment.some(e => equipment.includes(e)));
+
+  const categories = [...new Set(moves.map(m => m.category))];
+  const items = moves.map(m => `
+    <button class="swap-move-item" data-action="confirm-swap" data-index="${index}" data-move-id="${m.id}">
+      <span class="swap-move-icon">${m.icon}</span>
+      <div class="swap-move-info">
+        <div class="swap-move-name">${m.name}</div>
+        <div class="swap-move-muscles">${m.muscles.join(' · ')}</div>
+      </div>
+    </button>`).join('');
+
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">Swap Exercise</div>
+    <div class="text-muted text-sm" style="margin-bottom:12px">Pick a replacement — sets and rest stay the same.</div>
+    <div class="swap-move-list">${items}</div>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+}
+
 function showMoveDetail(moveId) {
   const move = getMoveById(moveId);
   if (!move) return;
@@ -1023,6 +1046,26 @@ async function handleClick(e) {
     case 'complete-set':   state.player?.completeSet();   break;
     case 'skip-rest':      state.player?.skipRest();      break;
     case 'jump-exercise':  state.player?.jumpToExercise(parseInt(el.dataset.index)); break;
+    case 'swap-exercise':  showSwapExercise(parseInt(el.dataset.index)); break;
+    case 'confirm-swap': {
+      const idx = parseInt(el.dataset.index);
+      const moveId = el.dataset.moveId;
+      const move = getMoveById(moveId);
+      if (!move || !state.sessionData) break;
+      // Replace exercise keeping sets/rest from original
+      const orig = state.sessionData.exercises[idx];
+      state.sessionData.exercises[idx] = {
+        ...orig,
+        moveId: move.id,
+        move,
+        reps: move.defaultReps,
+        duration: move.defaultDuration,
+        unit: move.unit || 'reps',
+      };
+      closeModal();
+      renderSessionContent(state.player);
+      break;
+    }
     case 'exit-session':
       if (confirm('Exit this session? Progress won\'t be saved.')) {
         state.player?.destroy();
