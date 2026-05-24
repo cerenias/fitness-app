@@ -361,14 +361,14 @@ function renderSessionContent(player) {
             <div class="sets-reps-label">Set</div>
           </div>
           <div class="sets-reps-divider">·</div>
-          <div class="sets-reps-item">
+          <div class="sets-reps-item editable" data-action="edit-reps" title="Tap to edit">
             <div class="sets-reps-value">${ex.duration ? ex.duration + 's' : ex.reps}</div>
-            <div class="sets-reps-label">${ex.unit === 'each' ? 'Each side' : ex.duration ? 'Seconds' : 'Reps'}</div>
+            <div class="sets-reps-label">${ex.unit === 'each' ? 'Each side' : ex.duration ? 'Seconds' : 'Reps'} ✏️</div>
           </div>
           <div class="sets-reps-divider">·</div>
-          <div class="sets-reps-item">
+          <div class="sets-reps-item editable" data-action="edit-rest" title="Tap to edit">
             <div class="sets-reps-value">${ex.rest}s</div>
-            <div class="sets-reps-label">Rest</div>
+            <div class="sets-reps-label">Rest ✏️</div>
           </div>
         </div>
         <div class="instructions-box">${move?.instructions || ''}</div>
@@ -1047,6 +1047,54 @@ async function handleClick(e) {
     case 'skip-rest':      state.player?.skipRest();      break;
     case 'jump-exercise':  state.player?.jumpToExercise(parseInt(el.dataset.index)); break;
     case 'swap-exercise':  showSwapExercise(parseInt(el.dataset.index)); break;
+    case 'edit-reps': {
+      const ex = state.player?.currentExercise;
+      if (!ex) break;
+      const field = ex.duration ? 'duration' : 'reps';
+      const label = ex.duration ? 'Seconds' : ex.unit === 'each' ? 'Reps each side' : 'Reps';
+      const current = ex.duration || ex.reps;
+      showModal(`
+        <div class="modal-handle"></div>
+        <div class="modal-title">Edit ${label}</div>
+        <input type="number" inputmode="numeric" class="form-input" id="edit-val" value="${current}" min="1" max="300" style="font-size:28px;text-align:center;padding:16px">
+        <button class="btn btn-primary btn-full" data-action="save-reps">Save</button>
+        <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+      setTimeout(() => document.getElementById('edit-val')?.select(), 100);
+      break;
+    }
+    case 'save-reps': {
+      const val = parseInt(document.getElementById('edit-val')?.value);
+      if (isNaN(val) || val < 1) break;
+      const ex = state.player?.currentExercise;
+      if (!ex) break;
+      if (ex.duration) ex.duration = val;
+      else ex.reps = val;
+      closeModal();
+      renderSessionContent(state.player);
+      break;
+    }
+    case 'edit-rest': {
+      const ex = state.player?.currentExercise;
+      if (!ex) break;
+      showModal(`
+        <div class="modal-handle"></div>
+        <div class="modal-title">Edit Rest (seconds)</div>
+        <input type="number" inputmode="numeric" class="form-input" id="edit-rest-val" value="${ex.rest}" min="0" max="600" style="font-size:28px;text-align:center;padding:16px">
+        <button class="btn btn-primary btn-full" data-action="save-rest">Save</button>
+        <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+      setTimeout(() => document.getElementById('edit-rest-val')?.select(), 100);
+      break;
+    }
+    case 'save-rest': {
+      const val = parseInt(document.getElementById('edit-rest-val')?.value);
+      if (isNaN(val) || val < 0) break;
+      const ex = state.player?.currentExercise;
+      if (!ex) break;
+      ex.rest = val;
+      closeModal();
+      renderSessionContent(state.player);
+      break;
+    }
     case 'confirm-swap': {
       const idx = parseInt(el.dataset.index);
       const moveId = el.dataset.moveId;

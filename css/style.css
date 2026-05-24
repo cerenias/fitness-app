@@ -402,6 +402,9 @@ textarea.form-input {
   gap: 12px;
   margin-bottom: 8px;
 }
+.sets-reps-item.editable { cursor: pointer; }
+.sets-reps-item.editable:active .sets-reps-value { color: var(--accent); }
+
 .swap-move-list {
   display: flex;
   flex-direction: column;
