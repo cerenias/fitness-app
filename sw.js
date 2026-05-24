@@ -1,11 +1,10 @@
 try {
   importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 } catch (e) {
-  // OneSignal not configured or CDN unavailable — push notifications disabled
   console.log('[FitTrack SW] OneSignal not loaded:', e.message);
 }
 
-const CACHE = 'fittrack-v1';
+const CACHE = 'fittrack-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -20,6 +19,7 @@ const ASSETS = [
   './js/config.js',
   './manifest.json',
   './icons/icon.svg',
+  './icons/maya.svg',
 ];
 
 self.addEventListener('install', e => {
@@ -36,10 +36,22 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Network-first strategy: always try network, fall back to cache when offline
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+
+  // Don't intercept cross-origin requests (CDNs, APIs)
+  if (!e.request.url.startsWith(self.location.origin)) return;
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        // Update cache with fresh response
+        const clone = response.clone();
+        caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
 
