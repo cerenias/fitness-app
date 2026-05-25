@@ -20,6 +20,7 @@ export const MOVES = [
     instructions: 'Hold a dumbbell vertically at chest height. Feet shoulder-width, toes out. Squat deep, elbows tracking inside your knees. Drive up through your heels.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'MeIiIdhvXT4', demo: 'https://www.youtube.com/watch?v=MeIiIdhvXT4',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 0, row: 0 },
   },
   {
     id: 'reverse-lunge',
@@ -41,6 +42,7 @@ export const MOVES = [
     instructions: 'Take a wide stance, toes pointing out 45°. Lower straight down keeping your torso upright. Squeeze your glutes and inner thighs as you rise.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'kjlfpqXnyL8', demo: 'https://www.youtube.com/watch?v=kjlfpqXnyL8',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 1, row: 0 },
   },
   {
     id: 'rdl',
@@ -51,6 +53,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells in front of thighs. Hinge at the hips, pushing them back while lowering the weights along your legs. Keep a soft knee and flat back. Drive hips forward to return.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '_oyxCn2iSjU', demo: 'https://www.youtube.com/watch?v=_oyxCn2iSjU',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 2, row: 0 },
   },
   // ─── Glutes ──────────────────────────────────────────────────────────────
   {
@@ -84,6 +87,7 @@ export const MOVES = [
     instructions: 'Place a resistance band just above your knees. Slightly bend your knees, hips back. Step sideways keeping tension in the band throughout. Take 10 steps each direction.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
     videoId: 'y_bqFDQZSHQ', demo: 'https://www.youtube.com/watch?v=y_bqFDQZSHQ',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 0, row: 1 },
   },
   // ─── Chest / Push ────────────────────────────────────────────────────────
   {
@@ -95,6 +99,7 @@ export const MOVES = [
     instructions: 'Hands slightly wider than shoulders, body in a straight line. Lower your chest to just above the floor, elbows at 45° to your body. Push back up. Drop to knees to scale.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'Zi6c09DRGxk', demo: 'https://www.youtube.com/watch?v=Zi6c09DRGxk',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 1, row: 1 },
   },
   {
     id: 'pike-push-up',
@@ -105,6 +110,7 @@ export const MOVES = [
     instructions: 'Start in a downward dog position, hips high. Bend elbows to lower your head toward the floor, then press back up. Keep your hips elevated throughout.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'pHR5yG6xBps', demo: 'https://www.youtube.com/watch?v=pHR5yG6xBps',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 2, row: 1 },
   },
   {
     id: 'db-shoulder-press',
@@ -160,6 +166,7 @@ export const MOVES = [
     instructions: 'Hold a resistance band at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together, keeping arms straight. Slowly return. Great for posture.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
     videoId: 'smSSXITNpCI', demo: 'https://www.youtube.com/watch?v=smSSXITNpCI',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 0, row: 2 },
   },
   {
     id: 'banded-face-pull',
@@ -170,6 +177,7 @@ export const MOVES = [
     instructions: 'Anchor a band at face height. Pull the band toward your face, elbows high and flaring out, hands ending by your ears. Squeeze at the end position. Excellent for posture and shoulder health.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
     videoId: 'uX5W2kynMIo', demo: 'https://www.youtube.com/watch?v=uX5W2kynMIo',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 1, row: 2 },
   },
   {
     id: 'superman',
@@ -282,6 +290,7 @@ export const MOVES = [
     instructions: 'From standing, crouch and place hands on floor. Jump feet back to plank. Do a push-up (optional). Jump feet forward, then explosively jump up with arms overhead. Scale by stepping instead of jumping.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 60, unit: 'reps',
     videoId: 'mUYJqe_sJFE', demo: 'https://www.youtube.com/watch?v=mUYJqe_sJFE',
+    thumb: { sheet: 'exercise-assets/sheet7.png', cols: 3, rows: 3, col: 2, row: 2 },
   },
 ];
 
