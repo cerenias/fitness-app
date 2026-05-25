@@ -855,31 +855,57 @@ textarea.form-input {
 .stat-change.neg { color: var(--danger); }
 
 /* Activity calendar */
-.cal-labels {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
-  margin-bottom: 3px;
-}
-.cal-labels span {
+.cal-container { display: flex; flex-direction: column; gap: 3px; }
+
+.cal-header { display: flex; align-items: center; gap: 4px; margin-bottom: 1px; }
+.cal-month-col { width: 30px; flex-shrink: 0; }
+.cal-days-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; flex: 1; }
+.cal-days-header span {
   text-align: center;
   font-size: 10px;
   color: var(--text-muted);
   font-weight: 600;
 }
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+
+.cal-week-row { display: flex; align-items: center; gap: 4px; }
+.cal-week-row.cal-month-start { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--surface2); }
+.cal-month-label {
+  width: 30px;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
+.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; flex: 1; }
+
 .cal-day {
-  aspect-ratio: 1;
-  border-radius: 3px;
+  height: 28px;
+  border-radius: 4px;
   background: var(--surface2);
 }
 .cal-day.cal-done { background: var(--primary); }
-.cal-day.cal-missed { background: var(--danger); opacity: 0.4; }
-.cal-day.cal-future { background: var(--surface); opacity: 0.5; }
+.cal-day.cal-missed { background: var(--danger); opacity: 0.45; }
+.cal-day.cal-future { background: var(--surface); opacity: 0.4; }
+.cal-day.cal-today { box-shadow: 0 0 0 2px var(--primary); }
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-left: 34px;
+}
+.cal-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.cal-legend span + span { margin-left: 2px; }
 
 /* ─── Profile View ───────────────────────────────────────────────────────── */
 .profile-section { display: flex; flex-direction: column; gap: 10px; }

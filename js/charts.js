@@ -128,43 +128,93 @@ export function renderActivityCalendar(containerId, workouts, plan) {
   if (!container) return;
 
   const today = new Date();
-  const weeks = 12;
-  const days = weeks * 7;
+  today.setHours(0, 0, 0, 0);
+  const todayStr = toDateStr(today);
 
-  // Build a set of completed workout dates
+  // Anchor to Monday of current week
+  const dow = today.getDay(); // 0=Sun
+  const daysToMonday = dow === 0 ? -6 : 1 - dow;
+  const thisMonday = new Date(today);
+  thisMonday.setDate(today.getDate() + daysToMonday);
+
+  // 3 weeks back → 1 week forward = 4 complete Mon–Sun rows
+  const startDate = new Date(thisMonday);
+  startDate.setDate(thisMonday.getDate() - 21);
+
   const doneSet = new Set(workouts.filter(w => w.completed).map(w => w.date));
   const altSet  = new Set(workouts.filter(w => w.isAlternative).map(w => w.date));
   const trainingDays = new Set(Object.keys(plan || {}).map(Number));
 
-  let html = '<div class="cal-grid">';
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - days + 1);
+  // Build 4 week arrays
+  const weeks = [];
+  const cur = new Date(startDate);
+  for (let w = 0; w < 4; w++) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      week.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    weeks.push(week);
+  }
 
-  for (let i = 0; i < days; i++) {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
-    const dateStr = toDateStr(d);
-    const isTraining = trainingDays.has(d.getDay());
-    const isDone = doneSet.has(dateStr);
-    const isAlt  = altSet.has(dateStr);
-    const isFuture = d > today;
+  // Day headers Mon–Sun
+  const dayHeaders = ['M','T','W','T','F','S','S'];
 
-    let cls = 'cal-day';
-    if (isDone || isAlt) cls += ' cal-done';
-    else if (isTraining && !isFuture) cls += ' cal-missed';
-    else if (isFuture) cls += ' cal-future';
+  let html = '<div class="cal-container">';
 
-    const label = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    html += `<div class="${cls}" title="${label}"></div>`;
+  // Header
+  html += `<div class="cal-header">
+    <div class="cal-month-col"></div>
+    <div class="cal-days-header">${dayHeaders.map(l => `<span>${l}</span>`).join('')}</div>
+  </div>`;
+
+  let prevMonth = -1;
+
+  for (const week of weeks) {
+    const monday = week[0];
+    const weekMonth = monday.getMonth();
+
+    // Detect if this week row crosses a month boundary (for separator line)
+    const crossesBoundary = week.some(d => d.getDate() === 1) && weeks.indexOf(week) > 0;
+    const showLabel = weekMonth !== prevMonth;
+    const monthLabel = monday.toLocaleDateString('en-GB', { month: 'short' });
+    prevMonth = weekMonth;
+
+    html += `<div class="cal-week-row${crossesBoundary ? ' cal-month-start' : ''}">`;
+    html += `<div class="cal-month-label">${showLabel ? monthLabel : ''}</div>`;
+    html += `<div class="cal-week">`;
+
+    for (const d of week) {
+      const dateStr = toDateStr(d);
+      const isDone     = doneSet.has(dateStr);
+      const isAlt      = altSet.has(dateStr);
+      const isFuture   = d > today;
+      const isToday    = dateStr === todayStr;
+      const isTraining = trainingDays.has(d.getDay());
+
+      let cls = 'cal-day';
+      if (isDone || isAlt)              cls += ' cal-done';
+      else if (isTraining && !isFuture) cls += ' cal-missed';
+      else if (isFuture)                cls += ' cal-future';
+      if (isToday)                      cls += ' cal-today';
+
+      const label = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      html += `<div class="${cls}" title="${label}"></div>`;
+    }
+
+    html += '</div></div>';
   }
 
   html += '</div>';
 
-  // Week day labels
-  const dayLabels = ['S','M','T','W','T','F','S'];
-  let labelsHtml = '<div class="cal-labels">' + dayLabels.map(l => `<span>${l}</span>`).join('') + '</div>';
+  // Legend
+  html += `<div class="cal-legend">
+    <span class="cal-legend-dot" style="background:var(--primary)"></span><span>Done</span>
+    <span class="cal-legend-dot" style="background:var(--danger);opacity:.5"></span><span>Missed</span>
+    <span class="cal-legend-dot" style="background:var(--surface2)"></span><span>Rest</span>
+  </div>`;
 
-  container.innerHTML = labelsHtml + html;
+  container.innerHTML = html;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────

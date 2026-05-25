@@ -21,7 +21,7 @@ const state = {
   sessionData: null,
   previousHash: '#home',
   activeWorkoutTab: 'plan',
-  activeProgressTab: 'weight',
+  activeProgressTab: 'activity',
   libraryFilter: 'all',
   librarySearch: '',
   ob: { step: 0, name: '', trainingDays: [1, 3, 5], notifyHour: 7, notifyMinute: 0, equipment: ['bodyweight', 'bands', 'dumbbells'], weight: '', waist: '', hip: '', thigh: '', healthNotes: '' },
@@ -211,12 +211,8 @@ function thumbHTML(move, displayW = 90, displayH = null) {
   if (typeof move.thumb === 'string' || move.thumb?.img) {
     const src = typeof move.thumb === 'string' ? move.thumb : move.thumb.img;
     const dH = displayH ?? Math.round(displayW * 0.73);
-    // Inner div bleeds 8px past each edge; outer overflow:hidden clips it,
-    // trimming card-border artifacts from the image without touching the files.
-    const trim = 8;
-    const outer = `width:${displayW}px;height:${dH}px;position:relative;overflow:hidden;flex-shrink:0;`;
-    const inner = `background-image:url('${src}');background-size:cover;background-position:center;position:absolute;inset:-${trim}px;`;
-    return `<div class="move-thumb" style="${outer}"><div style="${inner}"></div></div>`;
+    const style = `background-image:url('${src}');background-size:cover;background-position:center;width:${displayW}px;height:${dH}px;`;
+    return `<div class="move-thumb" style="${style}"></div>`;
   }
   // Sprite sheet
   const { sheet, cols, rows, col, row, cropH } = move.thumb;
@@ -483,13 +479,13 @@ function timerCircleSVG(value, total, isRest) {
 
 async function renderProgress() {
   const tab = state.activeProgressTab;
-  const tabs = ['weight','measurements','steps','activity'];
+  const tabs = ['activity','weight','measurements','steps'];
 
   setView(`
     <div class="view">
       <div class="tab-pills">
         ${tabs.map(t => `<button class="tab-pill ${t === tab ? 'active' : ''}" data-action="progress-tab" data-tab="${t}">
-          ${{weight:'Weight', measurements:'Body', steps:'Steps', activity:'Activity'}[t]}</button>`).join('')}
+          ${{activity:'Calendar', weight:'Weight', measurements:'Body', steps:'Steps'}[t]}</button>`).join('')}
       </div>
       <div id="progress-content"></div>
     </div>`, 'Progress');
