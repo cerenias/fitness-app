@@ -210,10 +210,13 @@ function thumbHTML(move, displayW = 90, displayH = null) {
   // Individual pre-cropped image
   if (typeof move.thumb === 'string' || move.thumb?.img) {
     const src = typeof move.thumb === 'string' ? move.thumb : move.thumb.img;
-    const fit = move.thumb?.fit ?? 'cover';
     const dH = displayH ?? Math.round(displayW * 0.73);
-    const style = `background-image:url('${src}');background-size:${fit};background-position:center;width:${displayW}px;height:${dH}px;`;
-    return `<div class="move-thumb" style="${style}"></div>`;
+    // Inner div bleeds 8px past each edge; outer overflow:hidden clips it,
+    // trimming card-border artifacts from the image without touching the files.
+    const trim = 8;
+    const outer = `width:${displayW}px;height:${dH}px;position:relative;overflow:hidden;flex-shrink:0;`;
+    const inner = `background-image:url('${src}');background-size:cover;background-position:center;position:absolute;inset:-${trim}px;`;
+    return `<div class="move-thumb" style="${outer}"><div style="${inner}"></div></div>`;
   }
   // Sprite sheet
   const { sheet, cols, rows, col, row, cropH } = move.thumb;
