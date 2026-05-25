@@ -4,7 +4,7 @@ try {
   console.log('[FitTrack SW] OneSignal not loaded:', e.message);
 }
 
-const CACHE = 'fittrack-v3';
+const CACHE = 'fittrack-v4';
 const ASSETS = [
   './',
   './index.html',

@@ -592,11 +592,12 @@ async function renderProgressTab(tab) {
   }
 
   else if (tab === 'activity') {
-    const workouts = await getAllWorkouts();
-    const plan = state.profile?.plan || {};
+    const [workouts, stepsData] = await Promise.all([getAllWorkouts(), getStepsHistory()]);
+    const plan     = state.profile?.plan || {};
+    const stepGoal = state.profile?.stepGoal || 8000;
     el.innerHTML = `
       <div class="card chart-card">
-        <div class="card-title">Activity</div>
+        <div class="card-title">Activity <span class="cal-hint">tap a day to edit</span></div>
         <div id="cal-container"></div>
       </div>
       <div class="card card-sm">
@@ -605,7 +606,7 @@ async function renderProgressTab(tab) {
           <div class="stat-box"><div class="stat-value">${workouts.filter(w => w.isAlternative).length}</div><div class="stat-label">Alternatives</div></div>
         </div>
       </div>`;
-    renderActivityCalendar('cal-container', workouts, plan);
+    renderActivityCalendar('cal-container', workouts, plan, stepsData, stepGoal);
   }
 
   else if (tab === 'reps') {
@@ -988,16 +989,33 @@ function showLogMeasurements() {
     <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
 }
 
-function showLogSteps() {
+function showLogSteps(prefillDate = null) {
+  const todayStr = toDateStr(new Date());
+  const dateVal  = prefillDate || todayStr;
   showModal(`
     <div class="modal-handle"></div>
     <div class="modal-title">Log Steps</div>
-    <div class="text-muted text-sm" style="margin-bottom:12px">Open your iPhone <strong>Health</strong> app → Steps → check today's count, then enter it below.</div>
     <div class="form-group">
-      <label class="form-label">Steps today</label>
-      <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input" id="modal-steps" placeholder="7500" min="0" max="100000" style="font-size:24px;text-align:center;padding:16px">
+      <label class="form-label">Date</label>
+      <input type="date" class="form-input" id="modal-steps-date" value="${dateVal}" max="${todayStr}">
+    </div>
+    <div class="text-muted text-sm" style="margin-bottom:12px">Check your <strong>Health</strong> app for the step count on that day.</div>
+    <div class="form-group">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input" id="modal-steps" placeholder="7 500" min="0" max="100000" style="font-size:28px;text-align:center;padding:16px">
     </div>
     <button class="btn btn-primary btn-full btn-xl" data-action="save-steps" style="margin-top:8px">Save</button>
+    <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
+  setTimeout(() => document.getElementById('modal-steps')?.focus(), 100);
+}
+
+function showLogPastWorkout(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const label = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  showModal(`
+    <div class="modal-handle"></div>
+    <div class="modal-title">${label}</div>
+    <button class="btn btn-primary btn-full" style="margin-top:8px" data-action="save-past-workout" data-date="${dateStr}">✓ Mark as trained</button>
+    <button class="btn btn-ghost btn-full" data-action="log-past-steps" data-date="${dateStr}">👟 Log steps for this day</button>
     <button class="btn btn-ghost btn-full btn-sm" data-action="close-modal">Cancel</button>`);
 }
 
@@ -1078,6 +1096,31 @@ async function handleClick(e) {
       await renderProgressTab('reps');
       break;
 
+    // Calendar day tap → log past workout or steps
+    case 'cal-day-tap':
+      showLogPastWorkout(el.dataset.date);
+      break;
+    case 'save-past-workout': {
+      const dateStr = el.dataset.date;
+      await logWorkout({
+        date: dateStr,
+        sessionKey: 'manual',
+        sessionName: 'Manual log',
+        completed: true,
+        isAlternative: false,
+        durationMinutes: 45,
+        exercisesCompleted: 0,
+      });
+      closeModal();
+      await renderProgressTab('activity');
+      break;
+    }
+    case 'log-past-steps': {
+      closeModal();
+      showLogSteps(el.dataset.date);
+      break;
+    }
+
     // Library
     case 'library-filter':
       state.libraryFilter = el.dataset.filter;
@@ -1143,13 +1186,16 @@ async function handleClick(e) {
     case 'save-steps': {
       const s = parseInt(document.getElementById('modal-steps')?.value);
       if (isNaN(s) || s < 0) {
-        document.getElementById('modal-steps').style.borderColor = 'var(--danger)';
-        document.getElementById('modal-steps').placeholder = 'Enter a number first';
+        const inp = document.getElementById('modal-steps');
+        if (inp) { inp.style.borderColor = 'var(--danger)'; inp.placeholder = 'Enter a number first'; }
         break;
       }
-      await logSteps(s);
+      const dateField = document.getElementById('modal-steps-date');
+      await logSteps(s, dateField?.value || null);
       closeModal();
-      await renderHome();
+      // Re-render whichever view is active
+      if (state.activeProgressTab === 'activity') await renderProgressTab('activity');
+      else await renderHome();
       break;
     }
 

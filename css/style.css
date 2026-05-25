@@ -960,10 +960,26 @@ textarea.form-input {
   border-radius: 4px;
   background: var(--surface2);
 }
-.cal-day.cal-done { background: var(--primary); }
+.cal-day.cal-done   { background: var(--primary); }
 .cal-day.cal-missed { background: var(--danger); opacity: 0.45; }
 .cal-day.cal-future { background: var(--surface); opacity: 0.4; }
-.cal-day.cal-today { box-shadow: 0 0 0 2px var(--primary); }
+.cal-day.cal-today  { box-shadow: 0 0 0 2px var(--primary); }
+
+/* Perfect day: workout done + step goal hit → deep emerald */
+.cal-day.cal-done.cal-perfect { background: #059669; }
+
+/* Tappable past days */
+.cal-day[data-action] { cursor: pointer; }
+.cal-day[data-action]:active { filter: brightness(1.2); }
+
+.cal-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 6px;
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 .cal-legend {
   display: flex;
@@ -981,6 +997,7 @@ textarea.form-input {
   display: inline-block;
 }
 .cal-legend span + span { margin-left: 2px; }
+.cal-perfect-dot { background: #059669; }
 
 /* ─── Profile View ───────────────────────────────────────────────────────── */
 .profile-section { display: flex; flex-direction: column; gap: 10px; }

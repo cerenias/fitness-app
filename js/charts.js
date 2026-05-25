@@ -123,7 +123,7 @@ export function renderStepsChart(canvasId, data, goal = 8000) {
 
 // ─── Activity calendar heatmap ────────────────────────────────────────────
 
-export function renderActivityCalendar(containerId, workouts, plan) {
+export function renderActivityCalendar(containerId, workouts, plan, stepsData = [], stepGoal = 8000) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -141,9 +141,13 @@ export function renderActivityCalendar(containerId, workouts, plan) {
   const startDate = new Date(thisMonday);
   startDate.setDate(thisMonday.getDate() - 21);
 
-  const doneSet = new Set(workouts.filter(w => w.completed).map(w => w.date));
-  const altSet  = new Set(workouts.filter(w => w.isAlternative).map(w => w.date));
+  const doneSet  = new Set(workouts.filter(w => w.completed).map(w => w.date));
+  const altSet   = new Set(workouts.filter(w => w.isAlternative).map(w => w.date));
   const trainingDays = new Set(Object.keys(plan || {}).map(Number));
+
+  // Steps map: date → count
+  const stepsMap = {};
+  stepsData.forEach(s => { stepsMap[s.date] = s.count; });
 
   // Build 4 week arrays
   const weeks = [];
@@ -157,12 +161,9 @@ export function renderActivityCalendar(containerId, workouts, plan) {
     weeks.push(week);
   }
 
-  // Day headers Mon–Sun
   const dayHeaders = ['M','T','W','T','F','S','S'];
 
   let html = '<div class="cal-container">';
-
-  // Header
   html += `<div class="cal-header">
     <div class="cal-month-col"></div>
     <div class="cal-days-header">${dayHeaders.map(l => `<span>${l}</span>`).join('')}</div>
@@ -173,8 +174,6 @@ export function renderActivityCalendar(containerId, workouts, plan) {
   for (const week of weeks) {
     const monday = week[0];
     const weekMonth = monday.getMonth();
-
-    // Detect if this week row crosses a month boundary (for separator line)
     const crossesBoundary = week.some(d => d.getDate() === 1) && weeks.indexOf(week) > 0;
     const showLabel = weekMonth !== prevMonth;
     const monthLabel = monday.toLocaleDateString('en-GB', { month: 'short' });
@@ -185,21 +184,27 @@ export function renderActivityCalendar(containerId, workouts, plan) {
     html += `<div class="cal-week">`;
 
     for (const d of week) {
-      const dateStr = toDateStr(d);
-      const isDone     = doneSet.has(dateStr);
-      const isAlt      = altSet.has(dateStr);
-      const isFuture   = d > today;
-      const isToday    = dateStr === todayStr;
+      const dateStr  = toDateStr(d);
+      const isDone   = doneSet.has(dateStr) || altSet.has(dateStr);
+      const isFuture = d > today;
+      const isToday  = dateStr === todayStr;
       const isTraining = trainingDays.has(d.getDay());
+      const stepsHit = (stepsMap[dateStr] || 0) >= stepGoal;
 
       let cls = 'cal-day';
-      if (isDone || isAlt)              cls += ' cal-done';
+      if (isDone)                       cls += ' cal-done';
       else if (isTraining && !isFuture) cls += ' cal-missed';
       else if (isFuture)                cls += ' cal-future';
+      if (isDone && stepsHit)           cls += ' cal-perfect'; // both workout + steps goal
       if (isToday)                      cls += ' cal-today';
 
-      const label = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-      html += `<div class="${cls}" title="${label}"></div>`;
+      // Past and today non-future days are tappable to log
+      const tappable = !isFuture
+        ? `data-action="cal-day-tap" data-date="${dateStr}" data-done="${isDone}"`
+        : '';
+
+      const label = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += `<div class="${cls}" title="${label}" ${tappable}></div>`;
     }
 
     html += '</div></div>';
@@ -210,8 +215,8 @@ export function renderActivityCalendar(containerId, workouts, plan) {
   // Legend
   html += `<div class="cal-legend">
     <span class="cal-legend-dot" style="background:var(--primary)"></span><span>Done</span>
+    <span class="cal-legend-dot cal-perfect-dot"></span><span>Done + steps</span>
     <span class="cal-legend-dot" style="background:var(--danger);opacity:.5"></span><span>Missed</span>
-    <span class="cal-legend-dot" style="background:var(--surface2)"></span><span>Rest</span>
   </div>`;
 
   container.innerHTML = html;
@@ -279,6 +284,10 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
+// Local time components — avoids UTC offset shifting the date for timezones ahead of UTC
 function toDateStr(date) {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }

@@ -37,7 +37,8 @@ export async function saveProfile(data) {
 // ─── Workouts ──────────────────────────────────────────────────────────────
 
 export async function logWorkout(entry) {
-  return db.workouts.add({ ...entry, date: toDateStr(new Date()) });
+  const date = entry.date || toDateStr(new Date());
+  return db.workouts.add({ ...entry, date });
 }
 
 export async function getWorkoutByDate(dateStr) {
@@ -96,8 +97,8 @@ export async function getLatestMeasurements() {
 
 // ─── Steps ─────────────────────────────────────────────────────────────────
 
-export async function logSteps(count) {
-  const date = toDateStr(new Date());
+export async function logSteps(count, dateStr = null) {
+  const date = dateStr || toDateStr(new Date());
   const existing = await db.steps.where('date').equals(date).first();
   if (existing) {
     await db.steps.update(existing.id, { count });
@@ -166,8 +167,13 @@ export async function importAllData(jsonStr) {
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
+// Use local date components — toISOString() gives UTC which can be one day off
+// for timezones ahead of UTC (e.g. Finland UTC+3 at midnight).
 export function toDateStr(date) {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 export function dateStrToDate(str) {
