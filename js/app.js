@@ -1185,8 +1185,12 @@ async function handleClick(e) {
       break;
     }
     case 'export-data': {
-      const json = await exportAllData();
-      const blob = new Blob([json], { type: 'application/json' });
+      const dbJson = await exportAllData();
+      const dbData = JSON.parse(dbJson);
+      // Include chat history in backup
+      const chatRaw = localStorage.getItem(CHAT_KEY);
+      if (chatRaw) dbData._chat = JSON.parse(chatRaw);
+      const blob = new Blob([JSON.stringify(dbData)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1204,7 +1208,15 @@ async function handleClick(e) {
         if (!file) return;
         const text = await file.text();
         try {
-          await importAllData(text);
+          const data = JSON.parse(text);
+          // Restore chat history if present
+          if (data._chat) {
+            localStorage.setItem(CHAT_KEY, JSON.stringify(data._chat));
+            state.chatMessages = data._chat.messages || [];
+            state.chatHistory  = data._chat.history  || [];
+            delete data._chat;
+          }
+          await importAllData(JSON.stringify(data));
           state.profile = await getProfile();
           window.location.hash = '#home';
           showToast('Data restored!');
@@ -1534,7 +1546,11 @@ async function applyPlanAction(action) {
   if (action.type === 'set_session') {
     const template = SESSION_TEMPLATES[action.sessionKey];
     if (!template) return;
-    plan[action.day] = { ...template, sessionKey: action.sessionKey };
+    plan[action.day] = {
+      ...template,
+      sessionKey: action.sessionKey,
+      exercises: template.exercises.map(e => ({ ...e })),
+    };
   } else if (action.type === 'set_rest') {
     delete plan[action.day];
   } else {

@@ -125,8 +125,8 @@ export async function getMonthlyReport(plan, year, month) {
     d.setDate(d.getDate() + 1);
   }
 
-  const completed = workouts.filter(w => w.completed).length;
   const alternatives = workouts.filter(w => w.isAlternative).length;
+  const completed = workouts.filter(w => w.completed && !w.isAlternative).length;
 
   return { planned: plannedCount, completed, alternatives, workouts };
 }

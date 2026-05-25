@@ -60,7 +60,7 @@ export class SessionPlayer {
 
     if (isLastSet && isLastExercise) {
       this.phase = 'done';
-      this._saveWorkout();
+      this._saveWorkout().catch(e => console.error('Save workout failed:', e));
       this.onRender();
       return;
     }

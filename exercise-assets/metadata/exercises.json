@@ -1,0 +1,158 @@
+[
+  {
+    "id": "bodyweight_squat",
+    "name": "Bodyweight Squat",
+    "image": "png/bodyweight_squat.png",
+    "thumbnail": "thumbnails/bodyweight_squat_thumb.png"
+  },
+  {
+    "id": "goblet_squat",
+    "name": "Goblet Squat",
+    "image": "png/goblet_squat.png",
+    "thumbnail": "thumbnails/goblet_squat_thumb.png"
+  },
+  {
+    "id": "reverse_lunge",
+    "name": "Reverse Lunge",
+    "image": "png/reverse_lunge.png",
+    "thumbnail": "thumbnails/reverse_lunge_thumb.png"
+  },
+  {
+    "id": "sumo_squat",
+    "name": "Sumo Squat",
+    "image": "png/sumo_squat.png",
+    "thumbnail": "thumbnails/sumo_squat_thumb.png"
+  },
+  {
+    "id": "romanian_deadlift",
+    "name": "Romanian Deadlift",
+    "image": "png/romanian_deadlift.png",
+    "thumbnail": "thumbnails/romanian_deadlift_thumb.png"
+  },
+  {
+    "id": "glute_bridge",
+    "name": "Glute Bridge",
+    "image": "png/glute_bridge.png",
+    "thumbnail": "thumbnails/glute_bridge_thumb.png"
+  },
+  {
+    "id": "push_up",
+    "name": "Push Up",
+    "image": "png/push_up.png",
+    "thumbnail": "thumbnails/push_up_thumb.png"
+  },
+  {
+    "id": "pike_push_up",
+    "name": "Pike Push Up",
+    "image": "png/pike_push_up.png",
+    "thumbnail": "thumbnails/pike_push_up_thumb.png"
+  },
+  {
+    "id": "shoulder_press",
+    "name": "Shoulder Press",
+    "image": "png/shoulder_press.png",
+    "thumbnail": "thumbnails/shoulder_press_thumb.png"
+  },
+  {
+    "id": "lateral_raise",
+    "name": "Lateral Raise",
+    "image": "png/lateral_raise.png",
+    "thumbnail": "thumbnails/lateral_raise_thumb.png"
+  },
+  {
+    "id": "bent_over_row",
+    "name": "Bent Over Row",
+    "image": "png/bent_over_row.png",
+    "thumbnail": "thumbnails/bent_over_row_thumb.png"
+  },
+  {
+    "id": "band_pull_apart",
+    "name": "Band Pull Apart",
+    "image": "png/band_pull_apart.png",
+    "thumbnail": "thumbnails/band_pull_apart_thumb.png"
+  },
+  {
+    "id": "face_pull",
+    "name": "Face Pull",
+    "image": "png/face_pull.png",
+    "thumbnail": "thumbnails/face_pull_thumb.png"
+  },
+  {
+    "id": "superman_hold",
+    "name": "Superman Hold",
+    "image": "png/superman_hold.png",
+    "thumbnail": "thumbnails/superman_hold_thumb.png"
+  },
+  {
+    "id": "bicep_curl",
+    "name": "Bicep Curl",
+    "image": "png/bicep_curl.png",
+    "thumbnail": "thumbnails/bicep_curl_thumb.png"
+  },
+  {
+    "id": "tricep_extension",
+    "name": "Tricep Extension",
+    "image": "png/tricep_extension.png",
+    "thumbnail": "thumbnails/tricep_extension_thumb.png"
+  },
+  {
+    "id": "plank",
+    "name": "Plank",
+    "image": "png/plank.png",
+    "thumbnail": "thumbnails/plank_thumb.png"
+  },
+  {
+    "id": "side_plank",
+    "name": "Side Plank",
+    "image": "png/side_plank.png",
+    "thumbnail": "thumbnails/side_plank_thumb.png"
+  },
+  {
+    "id": "dead_bug",
+    "name": "Dead Bug",
+    "image": "png/dead_bug.png",
+    "thumbnail": "thumbnails/dead_bug_thumb.png"
+  },
+  {
+    "id": "bird_dog",
+    "name": "Bird Dog",
+    "image": "png/bird_dog.png",
+    "thumbnail": "thumbnails/bird_dog_thumb.png"
+  },
+  {
+    "id": "mountain_climber",
+    "name": "Mountain Climber",
+    "image": "png/mountain_climber.png",
+    "thumbnail": "thumbnails/mountain_climber_thumb.png"
+  },
+  {
+    "id": "burpee",
+    "name": "Burpee",
+    "image": "png/burpee.png",
+    "thumbnail": "thumbnails/burpee_thumb.png"
+  },
+  {
+    "id": "russian_twist",
+    "name": "Russian Twist",
+    "image": "png/russian_twist.png",
+    "thumbnail": "thumbnails/russian_twist_thumb.png"
+  },
+  {
+    "id": "flutter_kicks",
+    "name": "Flutter Kicks",
+    "image": "png/flutter_kicks.png",
+    "thumbnail": "thumbnails/flutter_kicks_thumb.png"
+  },
+  {
+    "id": "tricep_dips",
+    "name": "Tricep Dips",
+    "image": "png/tricep_dips.png",
+    "thumbnail": "thumbnails/tricep_dips_thumb.png"
+  },
+  {
+    "id": "high_knees",
+    "name": "High Knees",
+    "image": "png/high_knees.png",
+    "thumbnail": "thumbnails/high_knees_thumb.png"
+  }
+]
