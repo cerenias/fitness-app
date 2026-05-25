@@ -199,6 +199,17 @@ async function renderHome() {
     </div>`, 'FitTrack');
 }
 
+// ─── Thumbnail helper ─────────────────────────────────────────────────────
+
+function thumbHTML(move, w = 90, h = 70) {
+  if (!move?.thumb) {
+    return `<div class="move-thumb move-thumb-fallback">${move?.icon || '💪'}</div>`;
+  }
+  const { sheet, cols, rows, col, row } = move.thumb;
+  const style = `background-image:url('${sheet}');background-size:${cols * w}px ${rows * h}px;background-position:${-(col * w)}px ${-(row * h)}px;width:${w}px;height:${h}px;`;
+  return `<div class="move-thumb" style="${style}"></div>`;
+}
+
 // ─── Workout View ──────────────────────────────────────────────────────────
 
 async function renderWorkout() {
@@ -269,9 +280,12 @@ function renderLibraryTab() {
 
   const cards = moves.map(m => `
     <div class="move-card" data-action="view-move" data-move-id="${m.id}">
-      <div class="move-card-name">${m.name}</div>
-      <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
-      <div class="equip-tags">${m.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
+      ${thumbHTML(m, 90, 70)}
+      <div class="move-card-info">
+        <div class="move-card-name">${m.name}</div>
+        <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
+        <div class="equip-tags">${m.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
+      </div>
     </div>`).join('');
 
   return `
@@ -355,7 +369,7 @@ function renderSessionContent(player) {
     container.innerHTML = header + `
       <div class="phase-intro">
         <div class="exercise-number">Exercise ${ei + 1} of ${total}</div>
-        <div style="font-size:56px;text-align:center;line-height:1.2">${move?.icon || '💪'}</div>
+        ${move?.thumb ? thumbHTML(move, 200, 156) : `<div style="font-size:56px;text-align:center;line-height:1.2">${move?.icon || '💪'}</div>`}
         <div class="exercise-title">${move?.name || ''}</div>
         <div class="muscles-tags">${(move?.muscles || []).map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
         <div class="sets-reps-row">
@@ -917,7 +931,7 @@ function showSwapExercise(index) {
   const categories = [...new Set(moves.map(m => m.category))];
   const items = moves.map(m => `
     <button class="swap-move-item" data-action="confirm-swap" data-index="${index}" data-move-id="${m.id}">
-      <span class="swap-move-icon">${m.icon}</span>
+      ${thumbHTML(m, 64, 50)}
       <div class="swap-move-info">
         <div class="swap-move-name">${m.name}</div>
         <div class="swap-move-muscles">${m.muscles.join(' · ')}</div>
@@ -937,7 +951,7 @@ function showMoveDetail(moveId) {
   if (!move) return;
   showModal(`
     <div class="modal-handle"></div>
-    <div style="font-size:48px;text-align:center;margin-bottom:4px">${move.icon || '💪'}</div>
+    ${move.thumb ? thumbHTML(move, 240, 187) : `<div style="font-size:48px;text-align:center;margin-bottom:4px">${move.icon || '💪'}</div>`}
     <div class="modal-title" style="text-align:center">${move.name}</div>
     <div class="muscles-tags" style="justify-content:center">${move.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
     <div class="equip-tags" style="margin-top:8px;justify-content:center">${move.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
@@ -1303,9 +1317,12 @@ document.addEventListener('input', e => {
 
     moveListEl.innerHTML = moves.map(m => `
       <div class="move-card" data-action="view-move" data-move-id="${m.id}">
+        ${thumbHTML(m, 90, 70)}
+        <div class="move-card-info">
           <div class="move-card-name">${m.name}</div>
           <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
           <div class="equip-tags">${m.equipment.map(eq => `<span class="equip-tag">${eq}</span>`).join('')}</div>
+        </div>
       </div>`).join('') ||
       '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No exercises match.</div></div>';
   }
