@@ -203,12 +203,23 @@ async function renderHome() {
 
 // ─── Thumbnail helper ─────────────────────────────────────────────────────
 
-function thumbHTML(move, w = 90, h = 70) {
+function thumbHTML(move, displayW = 90, displayH = null) {
   if (!move?.thumb) {
     return `<div class="move-thumb move-thumb-fallback">${move?.icon || '💪'}</div>`;
   }
-  const { sheet, cols, rows, col, row } = move.thumb;
-  const style = `background-image:url('${sheet}');background-size:${cols * w}px ${rows * h}px;background-position:${-(col * w)}px ${-(row * h)}px;width:${w}px;height:${h}px;`;
+  const { sheet, cols, rows, col, row, cropH } = move.thumb;
+  // All sheets are 1536×1024 — derive exact cell size
+  const cellW = 1536 / cols;
+  const cellH = 1024 / rows;
+  const scale = displayW / cellW;
+  // Both dimensions use the same scale to prevent cell bleed
+  const bgW = Math.round(cols * displayW);
+  const bgH = Math.round(rows * cellH * scale);
+  const posX = -(col * displayW);
+  const posY = -Math.round(row * cellH * scale);
+  // cropH trims label area on sheets that have text captions
+  const dH = displayH ?? Math.round((cropH ?? cellH) * scale);
+  const style = `background-image:url('${sheet}');background-size:${bgW}px ${bgH}px;background-position:${posX}px ${posY}px;width:${displayW}px;height:${dH}px;`;
   return `<div class="move-thumb" style="${style}"></div>`;
 }
 
@@ -282,7 +293,7 @@ function renderLibraryTab() {
 
   const cards = moves.map(m => `
     <div class="move-card" data-action="view-move" data-move-id="${m.id}">
-      ${thumbHTML(m, 90, 70)}
+      ${thumbHTML(m, 90, 72)}
       <div class="move-card-info">
         <div class="move-card-name">${m.name}</div>
         <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
@@ -371,7 +382,7 @@ function renderSessionContent(player) {
     container.innerHTML = header + `
       <div class="phase-intro">
         <div class="exercise-number">Exercise ${ei + 1} of ${total}</div>
-        ${move?.thumb ? thumbHTML(move, 200, 156) : `<div style="font-size:56px;text-align:center;line-height:1.2">${move?.icon || '💪'}</div>`}
+        ${move?.thumb ? thumbHTML(move, 200) : `<div style="font-size:56px;text-align:center;line-height:1.2">${move?.icon || '💪'}</div>`}
         <div class="exercise-title">${move?.name || ''}</div>
         <div class="muscles-tags">${(move?.muscles || []).map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
         <div class="sets-reps-row">
@@ -933,7 +944,7 @@ function showSwapExercise(index) {
   const categories = [...new Set(moves.map(m => m.category))];
   const items = moves.map(m => `
     <button class="swap-move-item" data-action="confirm-swap" data-index="${index}" data-move-id="${m.id}">
-      ${thumbHTML(m, 64, 50)}
+      ${thumbHTML(m, 64, 48)}
       <div class="swap-move-info">
         <div class="swap-move-name">${m.name}</div>
         <div class="swap-move-muscles">${m.muscles.join(' · ')}</div>
@@ -953,7 +964,7 @@ function showMoveDetail(moveId) {
   if (!move) return;
   showModal(`
     <div class="modal-handle"></div>
-    ${move.thumb ? thumbHTML(move, 240, 187) : `<div style="font-size:48px;text-align:center;margin-bottom:4px">${move.icon || '💪'}</div>`}
+    ${move.thumb ? thumbHTML(move, 240) : `<div style="font-size:48px;text-align:center;margin-bottom:4px">${move.icon || '💪'}</div>`}
     <div class="modal-title" style="text-align:center">${move.name}</div>
     <div class="muscles-tags" style="justify-content:center">${move.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}</div>
     <div class="equip-tags" style="margin-top:8px;justify-content:center">${move.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>
@@ -1319,7 +1330,7 @@ document.addEventListener('input', e => {
 
     moveListEl.innerHTML = moves.map(m => `
       <div class="move-card" data-action="view-move" data-move-id="${m.id}">
-        ${thumbHTML(m, 90, 70)}
+        ${thumbHTML(m, 90, 72)}
         <div class="move-card-info">
           <div class="move-card-name">${m.name}</div>
           <div class="move-card-muscles">${m.muscles.join(' · ')}</div>
