@@ -290,7 +290,7 @@ export const MOVES = [
     instructions: 'From standing, crouch and place hands on floor. Jump feet back to plank. Do a push-up (optional). Jump feet forward, then explosively jump up with arms overhead. Scale by stepping instead of jumping.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 60, unit: 'reps',
     videoId: 'mUYJqe_sJFE', demo: 'https://www.youtube.com/watch?v=mUYJqe_sJFE',
-    thumb: { img: 'exercise-assets/ex_burpee.png', fit: 'contain' },
+    thumb: 'exercise-assets/ex_burpee.png',
   },
 ];
 
