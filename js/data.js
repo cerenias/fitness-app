@@ -115,6 +115,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells at shoulder height, palms facing forward. Press straight up until arms are extended. Lower with control. Keep your core tight and avoid arching your lower back.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '_RlRDWO2jfg', demo: 'https://www.youtube.com/watch?v=_RlRDWO2jfg',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 0, row: 0 },
   },
   {
     id: 'db-lateral-raise',
@@ -125,6 +126,7 @@ export const MOVES = [
     instructions: 'Hold light dumbbells at your sides. Raise arms out to the side to shoulder height with a slight bend in the elbow. Lead with your elbows, not your wrists. Lower slowly.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'NZsldrqqca8', demo: 'https://www.youtube.com/watch?v=NZsldrqqca8',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 3, row: 0 },
   },
   // ─── Back ────────────────────────────────────────────────────────────────
   {
@@ -136,6 +138,7 @@ export const MOVES = [
     instructions: 'Hinge forward at the hips, back flat, dumbbells hanging. Pull elbows back and up, squeezing your shoulder blades together. Lower with control. Keep your core braced.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '6TSP1TRMUzs', demo: 'https://www.youtube.com/watch?v=6TSP1TRMUzs',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 2, row: 0 },
   },
   {
     id: 'banded-row',
@@ -146,6 +149,7 @@ export const MOVES = [
     instructions: 'Anchor a band at waist height or sit with legs straight and band around feet. Pull the band to your torso, squeezing shoulder blades together. Control the return.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'eOKwM5nHzj4', demo: 'https://www.youtube.com/watch?v=eOKwM5nHzj4',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 0, row: 2 },
   },
   {
     id: 'band-pull-apart',
@@ -188,6 +192,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells at sides, palms forward. Curl both up to shoulder height, keeping elbows at your sides. Squeeze at the top, then lower slowly. Avoid swinging.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'KS-1_r9K4XA', demo: 'https://www.youtube.com/watch?v=KS-1_r9K4XA',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 1, row: 0 },
   },
   {
     id: 'db-tricep-ext',
@@ -198,6 +203,7 @@ export const MOVES = [
     instructions: 'Hold one dumbbell with both hands overhead, arms extended. Lower behind your head by bending at the elbows. Press back up. Keep elbows pointing forward and close to your head.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'popGXI-qs98', demo: 'https://www.youtube.com/watch?v=popGXI-qs98',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 0, row: 1 },
   },
   {
     id: 'banded-bicep-curl',
@@ -208,6 +214,7 @@ export const MOVES = [
     instructions: 'Stand on a resistance band, holding both ends. Curl both hands up toward your shoulders, keeping elbows at your sides. Lower with control. Constant tension from the band.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'Pe8B2_3sMkw', demo: 'https://www.youtube.com/watch?v=Pe8B2_3sMkw',
+    thumb: { sheet: 'exercise-assets/sheet6.png', cols: 4, rows: 3, col: 3, row: 2 },
   },
   // ─── Core ────────────────────────────────────────────────────────────────
   {
