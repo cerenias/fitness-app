@@ -1,1 +1,0 @@
-Exercise asset library structure with metadata and placeholder files.
