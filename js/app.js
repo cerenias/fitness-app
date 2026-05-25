@@ -59,7 +59,9 @@ function loadChatFromStorage() {
 
 async function init() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update(); // check for new SW on every page load
+    }).catch(() => {});
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       window.location.reload();
     });
