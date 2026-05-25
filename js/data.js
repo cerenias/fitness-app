@@ -31,7 +31,7 @@ export const MOVES = [
     instructions: 'Stand tall, hands on hips. Step one foot back and lower your back knee toward the floor without touching it. Push through the front foot to return. Alternate legs.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'each',
     videoId: 'MzRrLIkaAY0', demo: 'https://www.youtube.com/watch?v=MzRrLIkaAY0',
-    thumb: { sheet: 'exercise-assets/sheet2.png', cols: 3, rows: 2, col: 1, row: 1 },
+    thumb: { sheet: 'exercise-assets/sheet10.png', cols: 2, rows: 1, col: 0, row: 0, cropH: 700 },
   },
   {
     id: 'sumo-squat',
@@ -76,7 +76,7 @@ export const MOVES = [
     instructions: 'Sit with your upper back against a sofa or bench, knees bent, feet flat. Drive through your heels, squeeze your glutes hard at the top, forming a straight line from knees to shoulders. Lower with control.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'xDmFkJxPzeM', demo: 'https://www.youtube.com/watch?v=xDmFkJxPzeM',
-    thumb: { sheet: 'exercise-assets/sheet5.png', cols: 3, rows: 3, col: 2, row: 1 },
+    thumb: 'exercise-assets/ex_hip_thrust.png',
   },
   {
     id: 'banded-lateral-walk',
@@ -188,7 +188,7 @@ export const MOVES = [
     instructions: 'Lie face down, arms extended overhead. Simultaneously lift your arms, chest, and legs off the floor. Hold briefly, then lower. Keep your neck neutral — look at the floor.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'cc71nVQus4Y', demo: 'https://www.youtube.com/watch?v=cc71nVQus4Y',
-    thumb: { sheet: 'exercise-assets/sheet3.png', cols: 3, rows: 2, col: 0, row: 0 },
+    thumb: 'exercise-assets/ex_superman.png',
   },
   // ─── Arms ────────────────────────────────────────────────────────────────
   {
@@ -234,7 +234,7 @@ export const MOVES = [
     instructions: 'Forearms on the floor, elbows under shoulders. Body forms a straight line from head to heels. Breathe steadily. Don\'t let hips sag or rise — keep your glutes lightly squeezed.',
     defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
     videoId: 'wrRIs2Dk_8U', demo: 'https://www.youtube.com/watch?v=wrRIs2Dk_8U',
-    thumb: { sheet: 'exercise-assets/sheet2.png', cols: 3, rows: 2, col: 0, row: 0 },
+    thumb: 'exercise-assets/ex_plank.png',
   },
   {
     id: 'side-plank',
