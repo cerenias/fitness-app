@@ -20,7 +20,7 @@ export const MOVES = [
     instructions: 'Hold a dumbbell vertically at chest height. Feet shoulder-width, toes out. Squat deep, elbows tracking inside your knees. Drive up through your heels.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'MeIiIdhvXT4', demo: 'https://www.youtube.com/watch?v=MeIiIdhvXT4',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 0, row: 0 },
+    thumb: 'exercise-assets/ex_goblet_squat.png',
   },
   {
     id: 'reverse-lunge',
@@ -42,7 +42,7 @@ export const MOVES = [
     instructions: 'Take a wide stance, toes pointing out 45°. Lower straight down keeping your torso upright. Squeeze your glutes and inner thighs as you rise.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'kjlfpqXnyL8', demo: 'https://www.youtube.com/watch?v=kjlfpqXnyL8',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 1, row: 0 },
+    thumb: 'exercise-assets/ex_sumo_squat.png',
   },
   {
     id: 'rdl',
@@ -53,7 +53,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells in front of thighs. Hinge at the hips, pushing them back while lowering the weights along your legs. Keep a soft knee and flat back. Drive hips forward to return.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '_oyxCn2iSjU', demo: 'https://www.youtube.com/watch?v=_oyxCn2iSjU',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 2, row: 0 },
+    thumb: 'exercise-assets/ex_rdl.png',
   },
   // ─── Glutes ──────────────────────────────────────────────────────────────
   {
@@ -87,7 +87,7 @@ export const MOVES = [
     instructions: 'Place a resistance band just above your knees. Slightly bend your knees, hips back. Step sideways keeping tension in the band throughout. Take 10 steps each direction.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
     videoId: 'y_bqFDQZSHQ', demo: 'https://www.youtube.com/watch?v=y_bqFDQZSHQ',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 0, row: 1 },
+    thumb: 'exercise-assets/ex_banded_lateral_walk.png',
   },
   // ─── Chest / Push ────────────────────────────────────────────────────────
   {
@@ -99,7 +99,7 @@ export const MOVES = [
     instructions: 'Hands slightly wider than shoulders, body in a straight line. Lower your chest to just above the floor, elbows at 45° to your body. Push back up. Drop to knees to scale.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'Zi6c09DRGxk', demo: 'https://www.youtube.com/watch?v=Zi6c09DRGxk',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 1, row: 1 },
+    thumb: 'exercise-assets/ex_push_up.png',
   },
   {
     id: 'pike-push-up',
@@ -110,7 +110,7 @@ export const MOVES = [
     instructions: 'Start in a downward dog position, hips high. Bend elbows to lower your head toward the floor, then press back up. Keep your hips elevated throughout.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'pHR5yG6xBps', demo: 'https://www.youtube.com/watch?v=pHR5yG6xBps',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 2, row: 1 },
+    thumb: 'exercise-assets/ex_pike_push_up.png',
   },
   {
     id: 'db-shoulder-press',
@@ -121,7 +121,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells at shoulder height, palms facing forward. Press straight up until arms are extended. Lower with control. Keep your core tight and avoid arching your lower back.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '_RlRDWO2jfg', demo: 'https://www.youtube.com/watch?v=_RlRDWO2jfg',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 0, row: 0 },
+    thumb: 'exercise-assets/ex_db_shoulder_press.png',
   },
   {
     id: 'db-lateral-raise',
@@ -132,7 +132,7 @@ export const MOVES = [
     instructions: 'Hold light dumbbells at your sides. Raise arms out to the side to shoulder height with a slight bend in the elbow. Lead with your elbows, not your wrists. Lower slowly.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'NZsldrqqca8', demo: 'https://www.youtube.com/watch?v=NZsldrqqca8',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 3, row: 0 },
+    thumb: 'exercise-assets/ex_db_lateral_raise.png',
   },
   // ─── Back ────────────────────────────────────────────────────────────────
   {
@@ -144,7 +144,7 @@ export const MOVES = [
     instructions: 'Hinge forward at the hips, back flat, dumbbells hanging. Pull elbows back and up, squeezing your shoulder blades together. Lower with control. Keep your core braced.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: '6TSP1TRMUzs', demo: 'https://www.youtube.com/watch?v=6TSP1TRMUzs',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 2, row: 0 },
+    thumb: 'exercise-assets/ex_db_row.png',
   },
   {
     id: 'banded-row',
@@ -155,7 +155,7 @@ export const MOVES = [
     instructions: 'Anchor a band at waist height or sit with legs straight and band around feet. Pull the band to your torso, squeezing shoulder blades together. Control the return.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'eOKwM5nHzj4', demo: 'https://www.youtube.com/watch?v=eOKwM5nHzj4',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 0, row: 2 },
+    thumb: 'exercise-assets/ex_banded_row.png',
   },
   {
     id: 'band-pull-apart',
@@ -166,7 +166,7 @@ export const MOVES = [
     instructions: 'Hold a resistance band at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together, keeping arms straight. Slowly return. Great for posture.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
     videoId: 'smSSXITNpCI', demo: 'https://www.youtube.com/watch?v=smSSXITNpCI',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 0, row: 2 },
+    thumb: 'exercise-assets/ex_band_pull_apart.png',
   },
   {
     id: 'banded-face-pull',
@@ -177,7 +177,7 @@ export const MOVES = [
     instructions: 'Anchor a band at face height. Pull the band toward your face, elbows high and flaring out, hands ending by your ears. Squeeze at the end position. Excellent for posture and shoulder health.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 30, unit: 'reps',
     videoId: 'uX5W2kynMIo', demo: 'https://www.youtube.com/watch?v=uX5W2kynMIo',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 1, row: 2 },
+    thumb: 'exercise-assets/ex_banded_face_pull.png',
   },
   {
     id: 'superman',
@@ -200,7 +200,7 @@ export const MOVES = [
     instructions: 'Hold dumbbells at sides, palms forward. Curl both up to shoulder height, keeping elbows at your sides. Squeeze at the top, then lower slowly. Avoid swinging.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'KS-1_r9K4XA', demo: 'https://www.youtube.com/watch?v=KS-1_r9K4XA',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 1, row: 0 },
+    thumb: 'exercise-assets/ex_db_bicep_curl.png',
   },
   {
     id: 'db-tricep-ext',
@@ -211,7 +211,7 @@ export const MOVES = [
     instructions: 'Hold one dumbbell with both hands overhead, arms extended. Lower behind your head by bending at the elbows. Press back up. Keep elbows pointing forward and close to your head.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'popGXI-qs98', demo: 'https://www.youtube.com/watch?v=popGXI-qs98',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 0, row: 1 },
+    thumb: 'exercise-assets/ex_db_tricep_ext.png',
   },
   {
     id: 'banded-bicep-curl',
@@ -222,7 +222,7 @@ export const MOVES = [
     instructions: 'Stand on a resistance band, holding both ends. Curl both hands up toward your shoulders, keeping elbows at your sides. Lower with control. Constant tension from the band.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'Pe8B2_3sMkw', demo: 'https://www.youtube.com/watch?v=Pe8B2_3sMkw',
-    thumb: { sheet: 'exercise-assets/sheet6.png', cropH: 290, cols: 4, rows: 3, col: 3, row: 2 },
+    thumb: 'exercise-assets/ex_banded_bicep_curl.png',
   },
   // ─── Core ────────────────────────────────────────────────────────────────
   {
@@ -290,7 +290,7 @@ export const MOVES = [
     instructions: 'From standing, crouch and place hands on floor. Jump feet back to plank. Do a push-up (optional). Jump feet forward, then explosively jump up with arms overhead. Scale by stepping instead of jumping.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 60, unit: 'reps',
     videoId: 'mUYJqe_sJFE', demo: 'https://www.youtube.com/watch?v=mUYJqe_sJFE',
-    thumb: { sheet: 'exercise-assets/sheet7.png', cropH: 290, cols: 3, rows: 3, col: 2, row: 2 },
+    thumb: { img: 'exercise-assets/ex_burpee.png', fit: 'contain' },
   },
 ];
 

@@ -207,17 +207,23 @@ function thumbHTML(move, displayW = 90, displayH = null) {
   if (!move?.thumb) {
     return `<div class="move-thumb move-thumb-fallback">${move?.icon || '💪'}</div>`;
   }
+  // Individual pre-cropped image
+  if (typeof move.thumb === 'string' || move.thumb?.img) {
+    const src = typeof move.thumb === 'string' ? move.thumb : move.thumb.img;
+    const fit = move.thumb?.fit ?? 'cover';
+    const dH = displayH ?? Math.round(displayW * 0.73);
+    const style = `background-image:url('${src}');background-size:${fit};background-position:center;width:${displayW}px;height:${dH}px;`;
+    return `<div class="move-thumb" style="${style}"></div>`;
+  }
+  // Sprite sheet
   const { sheet, cols, rows, col, row, cropH } = move.thumb;
-  // All sheets are 1536×1024 — derive exact cell size
   const cellW = 1536 / cols;
   const cellH = 1024 / rows;
   const scale = displayW / cellW;
-  // Both dimensions use the same scale to prevent cell bleed
   const bgW = Math.round(cols * displayW);
   const bgH = Math.round(rows * cellH * scale);
   const posX = -(col * displayW);
   const posY = -Math.round(row * cellH * scale);
-  // cropH trims label area on sheets that have text captions
   const dH = displayH ?? Math.round((cropH ?? cellH) * scale);
   const style = `background-image:url('${sheet}');background-size:${bgW}px ${bgH}px;background-position:${posX}px ${posY}px;width:${displayW}px;height:${dH}px;`;
   return `<div class="move-thumb" style="${style}"></div>`;
