@@ -622,6 +622,81 @@ textarea.form-input {
   margin-top: 4px;
 }
 
+/* Session thumbnail in active/log phase */
+.session-thumb-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 4px;
+}
+.session-thumb-wrap .move-thumb {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Log reps prompt */
+.log-block {
+  background: var(--surface2);
+  border-radius: var(--r);
+  padding: 20px 24px 16px;
+  margin: 16px 0;
+}
+.log-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.log-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.log-adj {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.log-adj:active { background: var(--primary); color: var(--bg); }
+.log-input {
+  width: 90px;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.log-input::-webkit-inner-spin-button,
+.log-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Strength / rep-progression picker */
+.strength-picker {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--surface2);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
 /* Exercise mini-nav at bottom of session */
 .exercise-mini-nav {
   display: flex;

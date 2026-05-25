@@ -1,14 +1,14 @@
 import { getProfile, saveProfile, logWorkout, getWorkoutByDate, getAllWorkouts,
          getWeightHistory, getMeasurementHistory, getStepsHistory, getStepsByDate,
          logWeight, logMeasurements, logSteps, exportAllData, importAllData,
-         toDateStr } from './db.js';
+         getAllSetLogs, toDateStr } from './db.js';
 import { MOVES, SESSION_TEMPLATES, ALTERNATIVE_ACTIVITIES, EQUIPMENT_OPTIONS,
          getMoveById, getMovesByEquipment } from './data.js';
 import { generateDefaultPlan, getTodaySession, resolveSession, getStreak,
          getSmartNudge, getMonthlyReport } from './plan.js';
 import { SessionPlayer, formatTimer, repsLabel } from './session.js';
 import { renderWeightChart, renderMeasurementsChart, renderStepsChart,
-         renderActivityCalendar } from './charts.js';
+         renderActivityCalendar, renderStrengthChart } from './charts.js';
 import { initNotifications, showInAppNudge, notificationsConfigured,
          requestNotificationPermission, setTrainingDayTags } from './notifications.js';
 import { BACKEND_URL, APP_SECRET } from './config.js';
@@ -22,6 +22,7 @@ const state = {
   previousHash: '#home',
   activeWorkoutTab: 'plan',
   activeProgressTab: 'activity',
+  strengthMoveId: null,
   libraryFilter: 'all',
   librarySearch: '',
   ob: { step: 0, name: '', trainingDays: [1, 3, 5], notifyHour: 7, notifyMinute: 0, equipment: ['bodyweight', 'bands', 'dumbbells'], weight: '', waist: '', hip: '', thigh: '', healthNotes: '' },
@@ -416,11 +417,13 @@ function renderSessionContent(player) {
   }
 
   if (player.phase === 'active') {
+    const thumb = move?.thumb ? `<div class="session-thumb-wrap">${thumbHTML(move, 160)}</div>` : '';
     if (player.isTimedExercise) {
       container.innerHTML = header + `
         <div class="phase-active">
           <div class="exercise-number">Exercise ${ei + 1} — Set ${si + 1} of ${ex.sets}</div>
           <div class="exercise-title">${move?.name || ''}</div>
+          ${thumb}
           ${timerCircleSVG(player.timerValue, ex.duration, false)}
           <div class="instructions-box text-sm">${move?.instructions || ''}</div>
           <div class="exercise-mini-nav">${dotsHtml}</div>
@@ -430,13 +433,39 @@ function renderSessionContent(player) {
         <div class="phase-active" style="text-align:center">
           <div class="exercise-number">Exercise ${ei + 1} — Set ${si + 1} of ${ex.sets}</div>
           <div class="exercise-title">${move?.name || ''}</div>
+          ${thumb}
           <div class="reps-big">${ex.reps}</div>
           <div class="reps-unit">${ex.unit === 'each' ? 'reps each side' : 'reps'}</div>
           <div class="instructions-box text-sm" style="text-align:left">${move?.instructions || ''}</div>
-          <button class="btn btn-primary btn-full btn-xl" data-action="complete-set">Done ✓</button>
+          <button class="btn btn-primary btn-full btn-xl" data-action="request-log">Done ✓</button>
           <div class="exercise-mini-nav">${dotsHtml}</div>
         </div>`;
     }
+    return;
+  }
+
+  if (player.phase === 'log') {
+    const isTimed   = player.isTimedExercise;
+    const targetVal = isTimed ? ex.duration : ex.reps;
+    const unitLabel = isTimed ? 'seconds' : (ex.unit === 'each' ? 'reps each side' : 'reps');
+    container.innerHTML = header + `
+      <div class="phase-active" style="text-align:center">
+        <div class="exercise-number">Set ${si + 1} of ${ex.sets} — nice work!</div>
+        <div class="exercise-title">${move?.name || ''}</div>
+        <div class="log-block">
+          <div class="log-label">How many ${unitLabel}?</div>
+          <div class="log-input-row">
+            <button class="log-adj" data-action="adj-log" data-delta="-1">−</button>
+            <input type="number" inputmode="numeric" class="log-input" id="log-val"
+                   value="${targetVal}" min="0" max="999">
+            <button class="log-adj" data-action="adj-log" data-delta="1">+</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full btn-xl" data-action="submit-log">Save &amp; Rest</button>
+        <button class="btn btn-ghost btn-full btn-sm" data-action="skip-log">Skip</button>
+        <div class="exercise-mini-nav">${dotsHtml}</div>
+      </div>`;
+    setTimeout(() => document.getElementById('log-val')?.select(), 80);
     return;
   }
 
@@ -479,13 +508,13 @@ function timerCircleSVG(value, total, isRest) {
 
 async function renderProgress() {
   const tab = state.activeProgressTab;
-  const tabs = ['activity','weight','measurements','steps'];
+  const tabs = ['activity','weight','measurements','steps','reps'];
 
   setView(`
     <div class="view">
       <div class="tab-pills">
         ${tabs.map(t => `<button class="tab-pill ${t === tab ? 'active' : ''}" data-action="progress-tab" data-tab="${t}">
-          ${{activity:'Calendar', weight:'Weight', measurements:'Body', steps:'Steps'}[t]}</button>`).join('')}
+          ${{activity:'Calendar', weight:'Weight', measurements:'Body', steps:'Steps', reps:'Reps'}[t]}</button>`).join('')}
       </div>
       <div id="progress-content"></div>
     </div>`, 'Progress');
@@ -567,13 +596,8 @@ async function renderProgressTab(tab) {
     const plan = state.profile?.plan || {};
     el.innerHTML = `
       <div class="card chart-card">
-        <div class="card-title">Last 12 Weeks</div>
+        <div class="card-title">Activity</div>
         <div id="cal-container"></div>
-        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--primary);display:inline-block"></span>Trained</span>
-          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger);opacity:0.5;display:inline-block"></span>Missed</span>
-          <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)"><span style="width:14px;height:14px;border-radius:3px;background:var(--surface2);display:inline-block"></span>Rest</span>
-        </div>
       </div>
       <div class="card card-sm">
         <div class="stats-row">
@@ -582,6 +606,55 @@ async function renderProgressTab(tab) {
         </div>
       </div>`;
     renderActivityCalendar('cal-container', workouts, plan);
+  }
+
+  else if (tab === 'reps') {
+    const allLogs = await getAllSetLogs();
+
+    // Unique moves that have been logged
+    const moveIds = [...new Set(allLogs.map(l => l.moveId))].filter(Boolean);
+
+    if (!moveIds.length) {
+      el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📈</div><div class="empty-text">No rep data yet. After each set, log how many reps you did — your progress will appear here.</div></div></div>`;
+      return;
+    }
+
+    const selectedId = state.strengthMoveId && moveIds.includes(state.strengthMoveId)
+      ? state.strengthMoveId : moveIds[0];
+
+    // Get display name for each moveId
+    const nameFor = id => allLogs.find(l => l.moveId === id)?.moveName || id;
+    const moveOptions = moveIds.map(id =>
+      `<option value="${id}" ${id === selectedId ? 'selected' : ''}>${nameFor(id)}</option>`
+    ).join('');
+
+    // Best value per date for selected move
+    const moveLogs = allLogs.filter(l => l.moveId === selectedId);
+    const byDate = {};
+    moveLogs.forEach(l => {
+      if (!byDate[l.date] || l.value > byDate[l.date].value) byDate[l.date] = l;
+    });
+    const chartData = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    const latest = chartData[chartData.length - 1];
+    const best   = chartData.length ? Math.max(...chartData.map(d => d.value)) : 0;
+    const unit   = latest?.unit || 'reps';
+
+    el.innerHTML = `
+      <div class="card chart-card">
+        <div class="card-title">Rep Progression</div>
+        <select class="strength-picker" data-action="strength-move-select">${moveOptions}</select>
+        <div class="chart-wrap" style="margin-top:12px"><canvas id="main-chart"></canvas></div>
+      </div>
+      <div class="card card-sm">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value">${latest?.value ?? '—'}</div><div class="stat-label">Last ${unit}</div></div>
+          <div class="stat-box"><div class="stat-value">${best || '—'}</div><div class="stat-label">Best</div></div>
+          <div class="stat-box"><div class="stat-value">${chartData.length}</div><div class="stat-label">Sessions</div></div>
+        </div>
+      </div>`;
+
+    if (chartData.length) renderStrengthChart('main-chart', chartData);
+    else el.querySelector('.chart-wrap').innerHTML = emptyChartMsg('Complete some sets to track progress.');
   }
 }
 
@@ -1000,6 +1073,10 @@ async function handleClick(e) {
       state.activeProgressTab = el.dataset.tab;
       await renderProgress();
       break;
+    case 'strength-move-select':
+      state.strengthMoveId = el.value;
+      await renderProgressTab('reps');
+      break;
 
     // Library
     case 'library-filter':
@@ -1077,9 +1154,20 @@ async function handleClick(e) {
     }
 
     // Session player
-    case 'start-set':      state.player?.startSet();      break;
-    case 'complete-set':   state.player?.completeSet();   break;
-    case 'skip-rest':      state.player?.skipRest();      break;
+    case 'start-set':    state.player?.startSet();   break;
+    case 'request-log':  state.player?.requestLog(); break;
+    case 'submit-log': {
+      const val = parseInt(document.getElementById('log-val')?.value);
+      state.player?.completeSet(isNaN(val) ? null : val);
+      break;
+    }
+    case 'skip-log':   state.player?.completeSet(null); break;
+    case 'adj-log': {
+      const inp = document.getElementById('log-val');
+      if (inp) inp.value = Math.max(0, (parseInt(inp.value) || 0) + parseInt(el.dataset.delta));
+      break;
+    }
+    case 'skip-rest':  state.player?.skipRest();    break;
     case 'jump-exercise':  state.player?.jumpToExercise(parseInt(el.dataset.index)); break;
     case 'swap-exercise':  showSwapExercise(parseInt(el.dataset.index)); break;
     case 'edit-reps': {

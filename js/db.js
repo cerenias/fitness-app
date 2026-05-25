@@ -10,6 +10,15 @@ db.version(1).stores({
   steps:        '++id, date',
 });
 
+db.version(2).stores({
+  profile:      '++id',
+  workouts:     '++id, date, sessionKey, isAlternative',
+  weight:       '++id, date',
+  measurements: '++id, date',
+  steps:        '++id, date',
+  setLogs:      '++id, date, moveId',
+});
+
 // ─── Profile ───────────────────────────────────────────────────────────────
 
 export async function getProfile() {
@@ -105,28 +114,44 @@ export async function getStepsHistory() {
   return db.steps.orderBy('date').toArray();
 }
 
+// ─── Set Logs (per-set rep/seconds tracking) ──────────────────────────────
+
+export async function logSetResult({ date, moveId, moveName, setIndex, value, unit }) {
+  return db.setLogs.add({ date, moveId, moveName, setIndex, value, unit });
+}
+
+export async function getSetLogsByMove(moveId) {
+  return db.setLogs.where('moveId').equals(moveId).sortBy('date');
+}
+
+export async function getAllSetLogs() {
+  return db.setLogs.orderBy('date').toArray();
+}
+
 // ─── Export / Import ───────────────────────────────────────────────────────
 
 export async function exportAllData() {
-  const [profile, workouts, weight, measurements, steps] = await Promise.all([
+  const [profile, workouts, weight, measurements, steps, setLogs] = await Promise.all([
     db.profile.toArray(),
     db.workouts.toArray(),
     db.weight.toArray(),
     db.measurements.toArray(),
     db.steps.toArray(),
+    db.setLogs.toArray(),
   ]);
-  return JSON.stringify({ profile, workouts, weight, measurements, steps, exportedAt: new Date().toISOString() }, null, 2);
+  return JSON.stringify({ profile, workouts, weight, measurements, steps, setLogs, exportedAt: new Date().toISOString() }, null, 2);
 }
 
 export async function importAllData(jsonStr) {
   const data = JSON.parse(jsonStr);
-  await db.transaction('rw', db.profile, db.workouts, db.weight, db.measurements, db.steps, async () => {
+  await db.transaction('rw', db.profile, db.workouts, db.weight, db.measurements, db.steps, db.setLogs, async () => {
     await Promise.all([
       db.profile.clear(),
       db.workouts.clear(),
       db.weight.clear(),
       db.measurements.clear(),
       db.steps.clear(),
+      db.setLogs.clear(),
     ]);
     await Promise.all([
       db.profile.bulkAdd(data.profile || []),
@@ -134,6 +159,7 @@ export async function importAllData(jsonStr) {
       db.weight.bulkAdd(data.weight || []),
       db.measurements.bulkAdd(data.measurements || []),
       db.steps.bulkAdd(data.steps || []),
+      db.setLogs.bulkAdd(data.setLogs || []),
     ]);
   });
 }

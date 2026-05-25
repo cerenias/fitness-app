@@ -1,5 +1,5 @@
 import { getMoveById } from './data.js';
-import { logWorkout, toDateStr } from './db.js';
+import { logWorkout, logSetResult, toDateStr } from './db.js';
 import { updateLastWorkoutTag } from './notifications.js';
 
 // ─── SessionPlayer ─────────────────────────────────────────────────────────
@@ -42,13 +42,34 @@ export class SessionPlayer {
   startSet() {
     this.phase = 'active';
     if (this.isTimedExercise) {
-      this.startTimer(this.currentExercise.duration, () => this.completeSet());
+      this.startTimer(this.currentExercise.duration, () => this.requestLog());
     }
     this.onRender();
   }
 
-  completeSet() {
+  // Show the log-reps prompt (called after Done button or when timed exercise ends)
+  requestLog() {
     this.clearTimer();
+    this.phase = 'log';
+    this.onRender();
+  }
+
+  // Called after user submits or skips the log prompt
+  completeSet(logValue = null) {
+    // Persist set result if user provided a value
+    if (logValue !== null) {
+      const ex   = this.currentExercise;
+      const move = this.currentMove;
+      logSetResult({
+        date:      toDateStr(new Date()),
+        moveId:    move?.id    || '',
+        moveName:  move?.name  || '',
+        setIndex:  this.setIndex,
+        value:     logValue,
+        unit:      ex.duration ? 'seconds' : 'reps',
+      }).catch(e => console.warn('Set log save failed:', e));
+    }
+
     this.completedSets.push({
       exerciseIndex: this.exerciseIndex,
       setIndex: this.setIndex,
@@ -76,7 +97,7 @@ export class SessionPlayer {
         this.setIndex++;
         this.phase = 'active';
         if (this.isTimedExercise) {
-          this.startTimer(this.currentExercise.duration, () => this.completeSet());
+          this.startTimer(this.currentExercise.duration, () => this.requestLog());
           return;
         }
       }
@@ -104,7 +125,7 @@ export class SessionPlayer {
       this.setIndex++;
       this.phase = 'active';
       if (this.isTimedExercise) {
-        this.startTimer(this.currentExercise.duration, () => this.completeSet());
+        this.startTimer(this.currentExercise.duration, () => this.requestLog());
         this.onRender();
         return;
       }

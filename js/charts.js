@@ -217,6 +217,47 @@ export function renderActivityCalendar(containerId, workouts, plan) {
   container.innerHTML = html;
 }
 
+// ─── Strength / Rep progression chart ────────────────────────────────────
+
+export function renderStrengthChart(canvasId, data) {
+  // data: [{ date, value, unit, moveName }] — best value per date, sorted by date
+  destroyChart(canvasId);
+  if (!data.length) return;
+
+  const unit = data[0]?.unit || 'reps';
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: {
+      labels: data.map(d => formatDate(d.date)),
+      datasets: [{
+        label: unit === 'seconds' ? 'Seconds' : 'Reps',
+        data: data.map(d => d.value),
+        borderColor: PURPLE,
+        backgroundColor: PURPLE + '22',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointBackgroundColor: PURPLE,
+        pointHoverRadius: 7,
+      }],
+    },
+    options: {
+      ...BASE_OPTIONS,
+      plugins: {
+        ...BASE_OPTIONS.plugins,
+        legend: { display: false },
+        tooltip: {
+          ...BASE_OPTIONS.plugins.tooltip,
+          callbacks: {
+            label: ctx => `${ctx.parsed.y} ${unit}`,
+          },
+        },
+      },
+    },
+  });
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
 function makeDataset(label, data, color) {
