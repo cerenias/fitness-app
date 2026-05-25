@@ -9,7 +9,7 @@ export const MOVES = [
     instructions: 'Stand feet shoulder-width apart, toes slightly out. Sit back and down keeping your chest tall and knees tracking over your toes. Drive through your heels to stand.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 45, unit: 'reps',
     videoId: 'P-yaD24bUE8', demo: 'https://www.youtube.com/watch?v=P-yaD24bUE8',
-    thumb: { sheet: 'exercise-assets/sheet2.png', cols: 3, rows: 2, col: 0, row: 1 },
+    thumb: 'exercise-assets/ex_squat.png',
   },
   {
     id: 'goblet-squat',
@@ -65,7 +65,7 @@ export const MOVES = [
     instructions: 'Lie on your back, knees bent, feet flat. Press through your heels and squeeze your glutes to raise your hips until your body forms a straight line. Hold briefly, then lower slowly.',
     defaultSets: 3, defaultReps: 15, defaultDuration: null, defaultRest: 40, unit: 'reps',
     videoId: 'LFvZ-d4rDac', demo: 'https://www.youtube.com/watch?v=LFvZ-d4rDac',
-    thumb: { sheet: 'exercise-assets/sheet1.png', cols: 3, rows: 2, col: 0, row: 0 },
+    thumb: 'exercise-assets/ex_glute_bridge.png',
   },
   {
     id: 'hip-thrust',
@@ -245,7 +245,7 @@ export const MOVES = [
     instructions: 'Lie on your side, forearm on the floor. Stack your feet and lift your hips to form a straight line. Keep your top arm at your side or reach toward the ceiling. Hold steady.',
     defaultSets: 3, defaultReps: null, defaultDuration: 20, defaultRest: 30, unit: 'seconds',
     videoId: 'Ujf5ELfqI7o', demo: 'https://www.youtube.com/watch?v=Ujf5ELfqI7o',
-    thumb: { sheet: 'exercise-assets/sheet2.png', cols: 3, rows: 2, col: 1, row: 0 },
+    thumb: 'exercise-assets/ex_side_plank.png',
   },
   {
     id: 'dead-bug',
@@ -256,7 +256,7 @@ export const MOVES = [
     instructions: 'Lie on your back, arms toward ceiling, knees at 90°. Lower your right arm and left leg toward the floor, exhaling and pressing your lower back down. Return and repeat on the other side. Move slowly and with control. Great for back health.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
     videoId: 'bxn9FBrt4-A', demo: 'https://www.youtube.com/watch?v=bxn9FBrt4-A',
-    thumb: { sheet: 'exercise-assets/sheet5.png', cols: 3, rows: 3, col: 1, row: 1 },
+    thumb: 'exercise-assets/ex_dead_bug.png',
   },
   {
     id: 'bird-dog',
@@ -267,7 +267,7 @@ export const MOVES = [
     instructions: 'On hands and knees, wrists under shoulders, knees under hips. Extend your right arm and left leg simultaneously, keeping hips level. Hold 2 seconds. Return and repeat on the other side. Essential for back stability.',
     defaultSets: 3, defaultReps: 10, defaultDuration: null, defaultRest: 40, unit: 'each',
     videoId: 'ZdAHe9_HeEw', demo: 'https://www.youtube.com/watch?v=ZdAHe9_HeEw',
-    thumb: { sheet: 'exercise-assets/sheet2.png', cols: 3, rows: 2, col: 2, row: 0 },
+    thumb: 'exercise-assets/ex_bird_dog.png',
   },
   // ─── Full Body / Cardio ──────────────────────────────────────────────────
   {
@@ -279,7 +279,7 @@ export const MOVES = [
     instructions: 'Start in a high plank. Drive one knee toward your chest, then quickly switch legs in a running motion. Keep hips level and core tight. Breathe continuously.',
     defaultSets: 3, defaultReps: null, defaultDuration: 30, defaultRest: 40, unit: 'seconds',
     videoId: 'cnyTQDSE884', demo: 'https://www.youtube.com/watch?v=cnyTQDSE884',
-    thumb: { sheet: 'exercise-assets/sheet1.png', cols: 3, rows: 2, col: 0, row: 1 },
+    thumb: 'exercise-assets/ex_mountain_climber.png',
   },
   {
     id: 'burpee',
