@@ -31,7 +31,7 @@ export const MOVES = [
     instructions: 'Stand tall, hands on hips. Step one foot back and lower your back knee toward the floor without touching it. Push through the front foot to return. Alternate legs.',
     defaultSets: 3, defaultReps: 12, defaultDuration: null, defaultRest: 45, unit: 'each',
     videoId: 'MzRrLIkaAY0', demo: 'https://www.youtube.com/watch?v=MzRrLIkaAY0',
-    thumb: { sheet: 'exercise-assets/sheet10.png', cols: 2, rows: 1, col: 0, row: 0, cropH: 700 },
+    thumb: 'exercise-assets/ex_reverse_lunge.png',
   },
   {
     id: 'sumo-squat',
